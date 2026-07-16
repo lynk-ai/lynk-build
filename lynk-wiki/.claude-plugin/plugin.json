@@ -1,7 +1,7 @@
 {
   "name": "lynk-wiki",
-  "description": "Lynk semantic layer documentation, skills, and subagents for building with Lynk.",
-  "version": "0.1.4",
+  "description": "Lynk semantic layer documentation and library, plus the roundtable expert-panel capability for decisions and plans (/lynk-wiki:round-table).",
+  "version": "0.2.0",
   "author": {
     "name": "Lynk",
     "email": "matan@getlynk.ai"
@@ -9,6 +9,8 @@
   "agents": [
     "./subagents/lynk-docs-expert.md",
     "./subagents/librarian.md",
-    "./subagents/book-reader.md"
+    "./subagents/book-reader.md",
+    "./subagents/panelist.md",
+    "./subagents/adjudicator.md"
   ]
 }
