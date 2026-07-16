@@ -13,7 +13,7 @@ A Claude Code plugin marketplace for Lynk.
 Add the marketplace, then install the plugin — from inside Claude Code:
 
 ```
-/plugin marketplace add <org>/lynk-build
+/plugin marketplace add lynk-ai/lynk-build
 /plugin install lynk-wiki@lynk-build
 ```
 
