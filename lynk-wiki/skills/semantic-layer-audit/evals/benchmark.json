@@ -1,0 +1,16 @@
+{
+  "skill": "semantic-layer-audit",
+  "note": "Populate per run. The bar (book-4 evaluating-a-skill): worth it if the catch-rate gain justifies the token/time cost — '+50 points for 13s is worth it; double tokens for +2 points isn't'. Fan-out cost scales with entity count — watch it.",
+  "runs": [
+    {
+      "date": null,
+      "trials": null,
+      "arm": null,
+      "catch_rate": null,
+      "false_alarm_rate": null,
+      "tokens": null,
+      "wall_time_s": null,
+      "notes": "baseline smoke test recorded in memory: 2/2 seeded violations caught + 1 real bonus catch — NOT yet a paired with/without run; formalize here."
+    }
+  ]
+}
