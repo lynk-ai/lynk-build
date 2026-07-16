@@ -1,0 +1,46 @@
+{
+  "skill": "semantic-layer-audit",
+  "method": "Seed real past defects into clean .lynk/ copies, run the gate BLIND, score catch-rate vs false-alarm. Value = delta between the with-grounding arm and a without-grounding (trust-the-SQL) arm. Judge with an external rubric, never the artifact's own phrasing. Run k>=3 trials, not n=1.",
+  "arms": {
+    "with_gate": "run the full skill incl. execution-grounding against the warehouse",
+    "without_gate": "audit unaided / trust the SQL's claim (the failure mode the gate forbids)"
+  },
+  "cases": [
+    {
+      "id": "averaged-ratio-jokic",
+      "seed": "replace weighted three_point_percentage with AVG(per-game pct)",
+      "class": "averaged-ratio",
+      "expect": { "verdict": "REJECT", "must_cite": ["three_point_percentage"], "anchor": "Jokić career 3P% weighted 36.5% (Snowflake-verified, 933g); averaged w/ 0-att as 0% = 30.5%" }
+    },
+    {
+      "id": "mislabelled-season-mvp",
+      "seed": "describe season_mvp as the Finals MVP award",
+      "class": "unbacked-or-mislabelled-metric",
+      "expect": { "verdict": "REJECT", "must_cite": ["season_mvp"], "anchor": "curated award records: season_mvp = regular-season award" }
+    },
+    {
+      "id": "dangling-metric-ref",
+      "seed": "point a player metric at metric(player_game.renamed_away)",
+      "class": "structural",
+      "expect": { "verdict": "REJECT", "must_cite": ["player"], "anchor": "structural: ref does not resolve" }
+    },
+    {
+      "id": "scale-mismatch-threshold",
+      "seed": "set is_efficient_scorer to >= 55 against a 0-1 scale value",
+      "class": "scale-mismatch-threshold",
+      "expect": { "verdict": "REJECT", "must_cite": ["is_efficient_scorer"], "anchor": "distribution of the feature is 0-1; 55 never fires" }
+    },
+    {
+      "id": "clean-control",
+      "seed": "none — a known-good entity",
+      "class": "control",
+      "expect": { "verdict": "PASS", "false_alarm_budget": 0 }
+    }
+  ],
+  "score": {
+    "catch_rate": "seeded bugs caught / seeded bugs planted",
+    "false_alarm_rate": "clean items flagged / clean items",
+    "pass_bar": "high catch_rate AND low false_alarm_rate; either alone = broken instrument",
+    "ablation_bar": "with_gate must beat without_gate on a non-inferable case; null delta on easy cases is expected, not disqualifying"
+  }
+}

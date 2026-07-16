@@ -1,0 +1,52 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "BK_DATA=\"${CLAUDE_PROJECT_DIR}/.bk\" bash \"${CLAUDE_PLUGIN_ROOT}\"/scripts/session-note.sh",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "lynk-wiki:book-reader",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "BK_DATA=\"${CLAUDE_PROJECT_DIR}/.bk\" bash \"${CLAUDE_PLUGIN_ROOT}\"/scripts/fetch-pointers.sh",
+            "timeout": 45000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}\"/scripts/route-layer-requests.sh",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "BK_DATA=\"${CLAUDE_PROJECT_DIR}/.bk\" bash \"${CLAUDE_PLUGIN_ROOT}\"/scripts/guard-layer-writes.sh",
+            "timeout": 10000
+          }
+        ]
+      }
+    ]
+  }
+}
