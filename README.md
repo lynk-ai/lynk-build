@@ -34,16 +34,24 @@ Auto-update is off by default for third-party marketplaces and there is no insta
 
 ```
 lynk-wiki/
-├── library/          # 6 gate-verified books from lynk-book (read-only; see BUNDLE_VERSION)
+├── library/          # 6 gate-verified books from lynk-book (read-only)
 ├── semantics_docs/   # Lynk semantics docs (README, SUMMARY, api, concepts, reference)
 ├── skills/           # library (pipeline) · bk-search · semantic-layer-audit · lynk-wiki
 ├── subagents/        # librarian (router/orchestrator) · book-reader (scout) · lynk-docs-expert
 ├── hooks/            # session note · pointer fetch · semantic router · layer-write nudge
 ├── scripts/          # the hook scripts
-├── bk                # library CLI (read-only in this bundle)
-├── BUNDLE_VERSION    # provenance: which lynk-book commit the books were rendered from
-└── INTEGRATION.md    # how the pieces fit + the env contract
+└── bk                # library CLI (read-only in this bundle)
 ```
+
+The books: `best-context` · `progressive-disclosure` · `skills` · `subagents` ·
+`evals` · `semantic-layer`. (In the authoring repo they carry numbered IDs;
+shipped names drop the prefix.)
+
+**Environment contract:** `CLAUDE_PLUGIN_ROOT` → where books + `bk` live;
+`BK_DATA` (set by the hooks) → the consumer project's `.bk/` for ALL state
+(reads log, gaps, fetch files) — the plugin folder is never written to. When
+the librarian can't answer, demand is recorded in the consumer's
+`.bk/gaps.jsonl` — collect those; they are the library's writing backlog.
 
 ## The two knowledge lanes
 
@@ -53,5 +61,6 @@ lynk-wiki/
   BOTH lanes before acting; pure "how does Lynk work" questions use the docs only.
 
 Books are rendered from the [lynk-book](../lynk-book) authoring repo and are
-read-only here — `bk` refuses writes beside the `BUNDLE_VERSION` marker. To update
-the books, render a new bundle there and bump the plugin version.
+read-only here — `bk` refuses writes beside the hidden `.bundle-version` marker
+(which also records exactly which lynk-book commit the books came from). To
+update the books, render a new bundle there and bump the plugin version.
