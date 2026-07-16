@@ -1,0 +1,11 @@
+bundle: lynk-library
+host-plugin: lynk-wiki
+source: lynk-book @ 83a03a8 (2026-07-16)
+shelf: published (internal/warehouse books stay home per library/audience.json)
+books:
+  - book-1-best-context (12p)
+  - book-3-progressive-disclosure (7p)
+  - book-4-skills (6p)
+  - book-5-subagents (6p)
+  - book-6-evals (9p)
+  - book-7-semantic-layer (8p)

@@ -1,0 +1,15 @@
+{
+  "_comment": "Shelf split: 'published' books ship in the plugin bundle (scripts/bundle.sh filters on this); 'internal' books are the warehouse — governance and packaging meta that stays home. The dev repo always carries both shelves.",
+  "published": [
+    "book-1-best-context",
+    "book-3-progressive-disclosure",
+    "book-4-skills",
+    "book-5-subagents",
+    "book-6-evals",
+    "book-7-semantic-layer"
+  ],
+  "internal": [
+    "book-2-book-standard",
+    "book-8-plugins"
+  ]
+}
