@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# BUNDLE BUILD (read-only) — rendered from lynk-book @ 7081574 (2026-07-16) for plugin "lynk-wiki".
+# BUNDLE BUILD (read-only) — rendered from lynk-book @ c032dfc (2026-07-16) for plugin "lynk-wiki".
 # Write verbs are not present in this copy; authoring happens in the lynk-book repo.
 """bk — the library CLI. CandleKeep's `ck`, pointed at a folder instead of a cloud.
 
@@ -47,7 +47,15 @@ apart, e.g. books in a plugin bundle, telemetry in the consumer project.
 """
 import sys, os, re, json, hashlib, argparse, datetime, pathlib, shutil
 
-ROOT = pathlib.Path(os.environ.get("BK_ROOT", pathlib.Path(__file__).resolve().parent))
+def _autodetect_root():
+    # bk may live at the content root (dev repo) or one level down (a bundle's
+    # scripts/bk). Find the ancestor that actually holds library/.
+    here = pathlib.Path(__file__).resolve().parent
+    for cand in (here, here.parent):
+        if (cand / "library").is_dir():
+            return cand
+    return here
+ROOT = pathlib.Path(os.environ["BK_ROOT"]) if os.environ.get("BK_ROOT") else _autodetect_root()
 # BUNDLE_BUILD is flipped to True by scripts/bundle.sh in the SHIPPED copy of
 # this file. A bundle build has NO write verbs at all — put/create/log/promote
 # and index --write are never registered, so the capability doesn't exist in

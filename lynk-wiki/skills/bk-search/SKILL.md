@@ -7,7 +7,7 @@ description: Shared bk CLI reference for library agents - how to list, inspect, 
 
 **Resolve the CLI first** (works in the dev repo AND inside a host plugin):
 ```bash
-BK_ROOT="${CLAUDE_PLUGIN_ROOT:-$PWD}"; BK="$BK_ROOT/bk"
+BK_ROOT="${CLAUDE_PLUGIN_ROOT:-$PWD}"; BK="$BK_ROOT/scripts/bk"
 BK_DATA="${BK_DATA:-$PWD/.bk}"
 ```
 Books are read from `$BK_ROOT` (the plugin bundle when installed); all state — reads log, gaps, fetch files — lands in `$BK_DATA` (the project you're working in). Always tag your role so the reads telemetry stays honest:

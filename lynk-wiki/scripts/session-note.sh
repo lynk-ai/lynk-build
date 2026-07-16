@@ -6,7 +6,7 @@ set -euo pipefail
 
 # Content home: the plugin bundle when installed, else this repo.
 ROOT="${CLAUDE_PLUGIN_ROOT:-${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}}"
-BK="$ROOT/bk"
+BK="$ROOT/scripts/bk"
 # State home: the consumer project (dev: the repo itself).
 DATA="${BK_DATA:-${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}/.bk}"
 

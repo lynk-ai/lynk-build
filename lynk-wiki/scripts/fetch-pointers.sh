@@ -63,7 +63,7 @@ for book, pages in books.items():
     spec = f"{book}:{','.join(pages)}"
     try:
         out = subprocess.run(
-            [os.path.join(bk_root, "bk"), "read", spec],
+            [os.path.join(bk_root, "scripts", "bk"), "read", spec],
             cwd=cwd, capture_output=True, text=True, timeout=30,
             env={**os.environ, "BK_ROLE": "hook",
                  "BK_ROOT": bk_root, "BK_DATA": bk_data},
