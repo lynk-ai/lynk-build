@@ -1,0 +1,15 @@
+{
+  "name": "lynk-build",
+  "description": "Lynk's Claude Code plugin marketplace.",
+  "owner": {
+    "name": "Lynk",
+    "email": "matan@getlynk.ai"
+  },
+  "plugins": [
+    {
+      "name": "lynk-wiki",
+      "source": "./lynk-wiki",
+      "description": "Lynk semantic layer documentation, skills, and subagents for building with Lynk."
+    }
+  ]
+}
