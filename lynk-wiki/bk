@@ -46,10 +46,10 @@ apart, e.g. books in a plugin bundle, telemetry in the consumer project.
 import sys, os, re, json, hashlib, argparse, datetime, pathlib, shutil
 
 ROOT = pathlib.Path(os.environ.get("BK_ROOT", pathlib.Path(__file__).resolve().parent))
-# A rendered bundle carries BUNDLE_VERSION beside bk; its presence turns this
+# A rendered bundle carries a hidden .bundle-version beside bk; its presence turns this
 # copy READ-ONLY — writes happen only in the lynk-book authoring repo. An
 # artifact marker, not an env var, so no host wiring can accidentally unlock it.
-BUNDLE_MARKER = pathlib.Path(__file__).resolve().parent / "BUNDLE_VERSION"
+BUNDLE_MARKER = pathlib.Path(__file__).resolve().parent / ".bundle-version"
 # BK_DATA splits state from content: books are read from BK_ROOT (e.g. a plugin
 # bundle), while .bk/ state (reads log, verdicts) is written under BK_DATA
 # (e.g. the consumer project). Dev default: single-root layout. Bundle default

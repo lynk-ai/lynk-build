@@ -26,10 +26,10 @@ except Exception:
 " 2>/dev/null) || exit 0
 
 # Consumer mode: a rendered bundle carries BUNDLE_VERSION beside its books.
-# There, the writing pipeline and sustain skill do NOT exist — the note must
+# (hidden .bundle-version marker). There, the writing pipeline and sustain skill do NOT exist — the note must
 # neither instruct writes nor point at absent skills.
 CONSUMER=0
-[ -f "$ROOT/BUNDLE_VERSION" ] && CONSUMER=1
+[ -f "$ROOT/.bundle-version" ] && CONSUMER=1
 
 # Sustain nudge: count gaps not yet processed by the sustain loop (static
 # checkpoint — observation only; creation happens via /sustain, never inline).
@@ -61,7 +61,7 @@ fi
 
 WRITING_BLOCK="BUILD DIRECTIVE: before ANY create/update/edit of semantic-layer artifacts (entities, metrics, relations, features, policies): consult the semantics docs for the WHAT (format/syntax) AND invoke the library skill for the HOW (methodology, verification). Never mutate the layer from memory alone. Pure how-does-Lynk-work reference questions need only the docs.
 
-This library is a READ-ONLY rendered bundle (see BUNDLE_VERSION for provenance). Never edit its pages; improvements happen in the lynk-book authoring repo."
+This library is a READ-ONLY rendered bundle (provenance in .bundle-version). Never edit its pages; improvements happen in the lynk-book authoring repo."
 if [ "$CONSUMER" = "0" ]; then
   WRITING_BLOCK="WRITING DIRECTIVE: any new book or page must satisfy library/book-2-book-standard (the gate checks). The writer's first step is always reading the constitution: ./bk read book-1-best-context:index book-2-book-standard:index
 
