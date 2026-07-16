@@ -34,8 +34,24 @@ Auto-update is off by default for third-party marketplaces and there is no insta
 
 ```
 lynk-wiki/
-├── books/            # curated books (empty for now)
+├── library/          # 6 gate-verified books from lynk-book (read-only; see BUNDLE_VERSION)
 ├── semantics_docs/   # Lynk semantics docs (README, SUMMARY, api, concepts, reference)
-├── skills/           # Claude Code skills
-└── subagents/        # Claude Code subagents
+├── skills/           # library (pipeline) · bk-search · semantic-layer-audit · lynk-wiki
+├── subagents/        # librarian (router/orchestrator) · book-reader (scout) · lynk-docs-expert
+├── hooks/            # session note · pointer fetch · semantic router · layer-write nudge
+├── scripts/          # the hook scripts
+├── bk                # library CLI (read-only in this bundle)
+├── BUNDLE_VERSION    # provenance: which lynk-book commit the books were rendered from
+└── INTEGRATION.md    # how the pieces fit + the env contract
 ```
+
+## The two knowledge lanes
+
+- **`semantics_docs/` — the WHAT**: Lynk syntax, formats, fields, API reference.
+- **`library/` — the HOW**: build methodology, metric safety, verification recipes,
+  agent/eval design. The plugin's hooks steer every semantic-layer change to consult
+  BOTH lanes before acting; pure "how does Lynk work" questions use the docs only.
+
+Books are rendered from the [lynk-book](../lynk-book) authoring repo and are
+read-only here — `bk` refuses writes beside the `BUNDLE_VERSION` marker. To update
+the books, render a new bundle there and bump the plugin version.
