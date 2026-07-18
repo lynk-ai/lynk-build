@@ -1,0 +1,220 @@
+# Evaluate — content-quality audit of the semantic layer
+
+> **On-demand reference for `lynk-build`.** Load this file when the user asks to
+> evaluate, audit, review, assess, or diagnose the semantic layer or any part of it —
+> judging whether it is good enough for the AI agent to use, not just whether the
+> YAML parses. It checks description quality, cross-file consistency, content
+> placement, reference integrity, and SQL dialect compatibility against the user's
+> warehouse engine. Trigger phrases: "evaluate the semantics", "is this good enough
+> for the agent", "audit my entities", "check description quality", "any
+> contradictions in my context", "will my SQL run on Snowflake", "will this work on
+> BigQuery", "review the glossary", "check my evaluations against instructions",
+> "evaluate player", "is the semantic layer well structured", or any request to
+> assess the quality of files inside `.lynk/`.
+
+> **Deep whole-layer audits use `semantic-layer-audit`.** This evaluate flow does inline,
+> per-edit quality checks (and fixes) scoped to what a build touched. For a deep,
+> execution-grounded audit of the *whole* layer — grounding every metric against the warehouse,
+> a calibrated gate, and a verified punch-list — hand off to the `semantic-layer-audit` skill.
+
+## Steps
+
+### 1. Determine what to evaluate
+
+If the user has **not** specified what to evaluate, use the `AskUserQuestion` tool to ask them. Before presenting options, check git history to surface recently edited artifacts:
+
+```
+! git log --oneline --diff-filter=M --name-only -20 -- .lynk/ | head -40
+```
+
+Use that output to identify the last 3 distinct `.lynk/` artifacts that were modified (an entity's `schema.yml` or `ENTITY.md`, a glossary, a domain or root `LYNK.md`, a policy, a skill, etc.). Strip the domain path and file extension to present a clean artifact name (e.g., `player entity`, `core glossary`).
+
+Present these options to the user:
+- **Option 1** — Last edited artifact (e.g., `player entity`)
+- **Option 2** — Second-to-last edited artifact
+- **Option 3** — Third-to-last edited artifact
+- **Option 4** — Evaluate the entire semantic graph end-to-end
+
+If git history doesn't yield 3 distinct artifacts, fill remaining slots with sensible defaults (e.g., the glossary, evaluations, or the largest entity in the domain).
+
+Once the user selects, continue to Step 2 with the chosen target.
+
+---
+
+### 2. Locate the target files
+
+Scan the semantic layer file tree:
+
+```
+! find ./.lynk -type f | sort
+```
+
+Based on the user's selection, identify the relevant files:
+
+| Evaluation target | Files to read |
+|---|---|
+| Specific entity | The entity's `schema.yml` + `ENTITY.md` (+ any files ENTITY.md links or `@`-includes) + the domain's `LYNK.md` and `GLOSSARY.yml` + the root glossary |
+| Entity + related entities | Same as above, but for the seed entity AND every entity its `entity_relationships` reference |
+| Glossary | The glossary file only |
+| Full semantic graph | Every entity's `schema.yml` + `ENTITY.md`, all domain/root `LYNK.md` + `GLOSSARY.yml`, policies, skills, shared docs |
+| Examples / eval cases | Wherever the layer defines them (entity docs, skills, eval files) + the `schema.yml` of every entity they reference |
+
+If the user asked about a **specific metric, feature, or relationship** on an entity, still evaluate the full entity context — but lead your response with the specific item they asked about.
+
+---
+
+### 3. Read the target files
+
+Read only the files identified in Step 2. For entity evaluation, read in this order:
+1. The entity's `schema.yml`
+2. The entity's `ENTITY.md` (+ the files it links or `@`-includes)
+3. Domain `LYNK.md` + `GLOSSARY.yml`
+4. Root `LYNK.md` + `GLOSSARY.yml`
+
+For multi-entity evaluation (seed + related), read the seed's `entity_relationships` in its `schema.yml` first to determine the related entity set, then read each entity's files.
+
+---
+
+### 4. Read the relevant docs and detect the SQL engine
+
+- **Always read the docs index first** — `${CLAUDE_PLUGIN_ROOT}/semantics_docs/SUMMARY.md` — to see the doc tree; the placement check (Rule 2 of `${CLAUDE_PLUGIN_ROOT}/references/content-rules.md`) in Step 6 depends on knowing what file-type specs exist. Then `Read` only the pages relevant to the targets in Step 2 — concept and file-type pages live under `${CLAUDE_PLUGIN_ROOT}/semantics_docs/concepts/` (e.g. `concepts/entity/entity-md.md`, `concepts/entity/schema-yml/README.md`), format and naming rules under `reference/`. (The doc-navigation convention is in `${CLAUDE_PLUGIN_ROOT}/references/lynk-docs.md` — the docs are bundled with the plugin, read directly with no network fetch.)
+- **Detect the engine.** Read `config.json` at the repo root (agent-side warehouse settings — `.lynk/lynk.yml` holds only schema/topology) and look for an `engine`, `dialect`, or `warehouse` field. Common values: `bigquery`, `snowflake`, `postgres`, `redshift`, `databricks`. If the field is missing, empty, or the file doesn't exist, ask the user via `AskUserQuestion` — do not guess. Record the dialect; every SQL check in Step 6 keys off it.
+
+---
+
+### 5. Run the backend validity check
+
+Run the validate flow (`references/validate.md`) — its **steps 1–5** (branch detection, dirty-tree handling, origin check, token check, API call) — **without producing validate's report**. Capture the raw issue list for merging into the unified report in Step 7.
+
+If validate skips (no token, user cancelled at the dirty-tree prompt, or branch not on origin), record the skip reason as one of: `no token`, `user cancelled`, `branch not on origin`. **Do not abort the evaluation** — local checks in Step 6 still run regardless.
+
+---
+
+### 6. Evaluate locally
+
+For each finding, record: **severity** (error / warning / needs-client-input / suggestion), **location** (file + field or feature name), **what's wrong**, **how to fix it**.
+
+Apply these check groups against the target files:
+
+- **Content rules** — apply every rule in `${CLAUDE_PLUGIN_ROOT}/references/content-rules.md` (Rules 1–12; the rule index is at the top) against the target files, and tag each finding `local/content-rules-<N>` with its rule number. The Quick check at the bottom of `content-rules.md` is the minimum coverage — skip nothing.
+- **Schema & SQL structure** — per the semantics_v2 docs (`concepts/entity/schema-yml/` + `reference/sql-expressions.md`, which win on any disagreement): required fields present on every feature/metric/relationship, `keys` valid per the identity spec, metrics aggregate only the entity's own rows (no cross-entity references or `join_name` in metric SQL), no circular feature/metric dependencies, no duplicate names across features + metrics + relationships combined (metric names unique across the whole domain), relationship steps valid. **Severity: `error`.**
+- **Examples & evaluations quality** — covers every example/eval case the layer defines **and** every SQL example embedded in `ENTITY.md` / `LYNK.md` / shared docs markdown; the agent learns its query patterns from all of them, so a broken one teaches a broken pattern. Four sub-checks (detection detail lives in the cited rules):
+  - **Validity & queryability** [`local/content-rules-10`] — apply Rule 10 (dialect, canonical surface, references exist *and are queryable* — the mechanical `_`-prefix scan is in the rule). **Severity: `error`.**
+  - **Input ↔ expected_output coherence** [`local/examples-quality`] — the SQL's filters, grouping, metric/feature selection, and time window match what the `input` asks (Rule 10 point 4). **Severity: `warning`**, escalate to **`error`** when the divergence changes which entity / metric / dimension is tested.
+  - **Description ↔ test alignment** [`local/examples-quality`] — the `description` states what the case actually tests. **Severity: `warning`**. Pure description red flags (tautological, placeholder) belong under Rule 4.
+  - **Default-filter consistency** [`local/content-rules-5`] — every default filter the entity's or domain's instructions declare for that question type appears in `expected_output` (Rule 5). **needs-client-input** if the omission might be intentional, otherwise **`error`**.
+
+When examples and the layer's instructions disagree on the *intended* behavior, mark it **needs-client-input** rather than picking a side (see Rule 5 of `content-rules.md`).
+
+---
+
+### 7. Optionally execute every example and evaluation (gated, calls query-engine)
+
+Some failures only surface when the SQL actually runs — a column the engine doesn't expose, a relationship that doesn't resolve, a metric whose `sql:` produces a warehouse error, or a **private `_`-prefixed feature** referenced in generated SQL (Rule 10 point 3), which passes a naive "is it declared?" check but fails at plan time. The static checks in Step 6 catch what's reasonably checkable from the files alone (including the mechanical `_`-prefix scan); this step is the **authoritative confirmation** — it executes each `expected_output` against the warehouse. Scope: every example/eval case the layer defines. SQL examples embedded in `ENTITY.md` / `LYNK.md` / docs markdown often carry placeholders (`<company>`, a `dimension` stand-in) and are covered by the Step 6 static Rule 10 check rather than executed here; run one only if you substitute realistic literals first.
+
+**Key-uniqueness probe (Rule 11).** This same gated, warehouse-calling pass is also where a *suspected* fabricated key gets confirmed. When the user opts in (any answer but **Skip**), then for each in-scope entity that Step 6 flagged `needs-client-input` under Rule 11 — or whose source the catalog reports no `keys` for — run via the sources flow (`references/sources.md`): `SELECT COUNT(*) AS rows, COUNT(DISTINCT <declared key>) AS distinct_rows FROM <identity table> LIMIT 1`. `distinct_rows < rows` → the declared key doesn't uniquely identify a row → **error**, tagged `local/content-rules-11`; quote both counts in the finding. This is the authoritative confirmation of the Rule 11 static suspicion (Step 6 can only suspect; uniqueness is a property of the data).
+
+**Ask the user first** via `AskUserQuestion`:
+
+> *"Run every example and evaluation against the warehouse via `query-engine/query` (with `LIMIT 1` so each call is fast)? Yes / Yes, evaluations only / Yes, examples only / Skip."*
+
+This is opt-in. Never run it without asking — it dispatches real queries to the warehouse and takes seconds to tens of seconds per call.
+
+**If the user opts in,** for each `expected_output` in scope:
+
+1. **Apply `LIMIT 1`.** If the SQL already has a `LIMIT`, leave it; if it has none, append `LIMIT 1`. Do not wrap the query in a subquery — subqueries change the `semantics_used` shape returned by the engine and complicate error reporting.
+2. **Run via the sources flow** (`references/sources.md`) with the "Run Lynk SQL" action (`POST query-engine/query`, body is the SQL as a JSON-encoded string — see sources.md Step 3 for invocation, and `${CLAUDE_PLUGIN_ROOT}/references/rest-api.md` for the full endpoint shape). Use the same branch and domain this evaluation is operating on.
+3. **Record the outcome:**
+   - `200` → **pass**. Optionally capture `metadata.query_metadata.semantics_used` so the report can compare resolved entities / features against what the case claims to test (a case named "tests refund metric" whose `semantics_used.metrics` doesn't include the refund metric is a real finding).
+   - `422` with `error_type: SemanticsConsumptionError` → **error**, tagged `local/examples-runtime`. Surface the `message` verbatim ("Feature 'X' does not exist in entity 'Y'") and quote the offending SQL line.
+   - `500` with `error_type: InternalError` and `message: "SQL error: ParserError(...)"` → **error**, tagged `local/examples-runtime`. Quote the parser message.
+   - `500` with bare `"Request failed"` and no `detail` envelope → **needs-client-input**, tagged `local/examples-runtime`. The branch's semantic layer is itself in a broken state; running examples isn't meaningful until the underlying layer validates. Recommend running the validate flow (`references/validate.md`) on the same branch first.
+4. **Cap the dispatch.** If more than ~30 queries are in scope, re-prompt the user to narrow scope ("Run all 87, or only the ones in the entity we're evaluating?"). Don't silently dispatch 100+ warehouse calls.
+
+Merge runtime findings into the Step 8 report alongside the static ones — same severity tiers, separate source tag (`local/examples-runtime`).
+
+If the user picks **Skip** or the step was bypassed (no examples / no evaluations in scope), record the skip reason and continue to Step 8.
+
+---
+
+### 8. Produce the evaluation report
+
+Merge the backend issues from Step 5 with the static local findings from Step 6 and the runtime findings from Step 7 (if that step ran) into one unified report. Each issue carries a source tag so the user knows where it came from.
+
+**If the user asked about a specific metric / feature / relationship:** lead with a focused section on that item — its evaluation result, issues, and suggested fixes — before the broader entity report.
+
+**Report structure:**
+
+```
+## Evaluation Report — [Target Name] (engine: [dialect]) · Backend: [ok | <n> errors, <m> warnings | skipped: <reason>]
+
+### Summary
+[1-2 sentences: overall health, number of issues by severity, dialect applied, backend status]
+
+### Errors (must fix)
+- **[Location]** [backend/<scope>/<category> | local/<check-group>]: [What's wrong] → [How to fix]
+
+### Warnings (should fix)
+- **[Location]** [backend/... | local/...]: [What's wrong] → [How to fix]
+
+### Needs client input
+- **[Location]** [local/...]: [Conflict between instructions and examples / unresolvable intent] → [What you need from the user]
+
+### Suggestions (nice to have)
+- **[Location]** [local/...]: [What could be improved] → [Suggested improvement]
+
+### What looks good
+- [Bullet list of things that are well-modeled — be specific]
+```
+
+**Source tag values.** Every finding carries one tag so the user can tell at a glance where it came from — the backend API, a local rule, a content-quality check, or the runtime execution. Five shapes:
+
+- `backend/<scope>/<category>` — raised by the builds API call in Step 5 (the validate flow). `<scope>` is `entity` / `relationship` / `context`; `<category>` is `schema` (declarative YAML check) or `warehouse` (the backend ran a `LIMIT 0` probe and the engine rejected it). The `warehouse` category replaces the legacy `semantic` value — same tag shape, the enum just changed when validate moved to the builds endpoint.
+- `local/content-rules-<N>` — raised by a content rule in Step 6; `<N>` is the rule number (see the rule index at the top of `${CLAUDE_PLUGIN_ROOT}/references/content-rules.md`). Note: Rule 3 is action protocol, not a detection — misplacement findings get tagged `content-rules-2` and cite Rule 3 in the suggested fix.
+- `local/yaml-sql-structure` — raised by the structural validation group in Step 6 (required fields, `{}` placeholders, `METRIC()` wrapping, no aggregates in formulas, no circular formulas, no duplicate keys).
+- `local/examples-quality` — raised by the examples & evaluations quality group in Step 6 for the *semantic-alignment* sub-checks (input ↔ expected_output coherence, description ↔ test alignment). The same group's validity & queryability sub-check is tagged `local/content-rules-10`, and its default-filter-consistency sub-check is tagged `local/content-rules-5`.
+- `local/examples-runtime` — raised by the optional runtime-execution pass in Step 7 (the `expected_output` SQL didn't execute against the warehouse). Carries the `error_type` and `message` from the engine response.
+
+When the backend was skipped, the summary's `Backend:` field reads `skipped: <reason>` and the report contains only `[local/...]` issues. Mention the skip reason explicitly in the Summary paragraph so the user knows backend issues weren't checked.
+
+If no issues are found in a severity tier, omit that section entirely.
+
+---
+
+### 9. Offer fixes and re-evaluate (bounded loop, hard cap 3)
+
+If the report has errors or warnings, this flow — **and only this flow** — drives the fix-and-recheck loop. Build's Step 8 and validate's Output Format defer here; never run a parallel fix loop in those flows.
+
+For each iteration (max 3):
+
+1. **Offer fixes via `AskUserQuestion`:**
+   - If errors exist: single option `Fix all <N> errors and ask about warnings`, plus `Stop — accept remaining issues`.
+   - If only warnings exist: present them as `multiSelect: true` so the user picks which to fix. Include `Stop`.
+   - Suggestions are never auto-fixed; mention them but don't include in the offer.
+
+2. **If the user opts in:** delegate the edits to the main build flow (`SKILL.md` Steps 6–7 — plan and confirm, then execute). Build re-reads the relevant docs as part of its normal flow, so every fix attempt stays doc-grounded.
+
+3. **Re-check locally:** re-run **Steps 3 and 6 only** (re-read the edited files; re-do local checks). Skip Step 4 (engine/docs unchanged), Step 5 (backend won't see uncommitted changes), and Step 7 (don't re-dispatch warehouse calls inside the loop — runtime issues that were already reported will still be reported on commit, and running mid-loop would burn the user's warehouse credits per iteration).
+
+4. **Repeat** with the iteration number in the prompt (`Attempt 2 of 3 — <N> issues remain. Fix? Stop?`). **After iteration 3, exit unconditionally** even if issues remain. Tell the user: *"Reached the 3-attempt cap. <N> issues remain — fix manually, or re-run the evaluate flow to start a fresh loop."* This cap is non-negotiable; it prevents runaway loops if the agent can't converge.
+
+5. If the user picks **Stop** at any iteration, exit immediately and leave the remaining issues in the final report.
+
+**Backend re-check (post-loop).** If Step 5 reported backend issues *and* any fixes were applied during the loop, ask the user once: *"Commit your fixes and re-run the backend check?"*. If yes, run the full validate flow (`references/validate.md` — it handles commit-and-push and the API call). Otherwise, leave the original backend findings in the report annotated `(initial check; may be stale after local fixes)`.
+
+**Runtime re-check (post-loop).** If Step 7 ran and reported `local/examples-runtime` issues *and* fixes were applied, ask the user once: *"Re-run the affected examples / evaluations against the warehouse to confirm they now execute?"*. If yes, re-dispatch only the previously-failing queries — not the full set.
+
+For **full graph evaluation**, group findings by entity/file rather than by severity tier, so the user can focus on one entity at a time.
+
+For **evaluations evaluation**, group findings by evaluation name and add a coverage summary at the top showing entity distribution.
+
+---
+
+## Output Format
+
+- Always state the detected engine on the summary line so the user knows which dialect rules were applied.
+- Use code blocks when quoting YAML field names, feature names, or SQL snippets.
+- Reference exact file paths so the user can navigate directly.
+- Be specific about locations — say `player entity → schema.yml → feature: career_points → metric: nonexistent_metric` not just "a feature has an issue".
+- Lead with the most important findings; don't bury critical errors at the bottom.
+- If you find issues in the files, offer to fix them — but only after completing the full report.

@@ -1,0 +1,13 @@
+{
+  "name": "lynk-build",
+  "description": "The Lynk build agent: skills, bundled docs, and subagents for building and maintaining a Lynk semantic layer.",
+  "version": "0.2.0",
+  "author": {
+    "name": "Lynk",
+    "email": "matan@getlynk.ai"
+  },
+  "agents": [
+    "./subagents/librarian.md",
+    "./subagents/book-reader.md"
+  ]
+}
