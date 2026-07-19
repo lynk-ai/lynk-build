@@ -1,0 +1,10 @@
+# Read-only Snowflake MCP config.
+# other_services turns the tools on (omit it and the server exposes 0 tools);
+# sql_statement_permissions then caps every tool at SELECT.
+other_services:
+  query_manager: true     # run_snowflake_query
+  object_manager: true    # list / describe objects
+  semantic_manager: false
+sql_statement_permissions:
+  - All: false
+  - Select: true

@@ -7,9 +7,9 @@
   },
   "plugins": [
     {
-      "name": "lynk-wiki",
-      "source": "./lynk-wiki",
-      "description": "Lynk semantic layer documentation, skills, and subagents for building with Lynk."
+      "name": "lynk-build",
+      "source": "./lynk-build",
+      "description": "The Lynk build agent: skills, bundled docs, and subagents for building and maintaining a Lynk semantic layer."
     }
   ]
 }

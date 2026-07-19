@@ -1,0 +1,121 @@
+# Sources — warehouse catalog & Lynk SQL
+
+> **On-demand reference for `lynk-build`.** Load this file when the task needs the
+> warehouse side of the layer: list schemas, list sources (tables), fetch a source's
+> columns, sync the catalog against the warehouse, reconcile entity schemas after a
+> source change, or run / test an ad-hoc Lynk SQL query. Trigger phrases: "list
+> schemas", "what schemas do I have", "add the orders table", "sync sources",
+> "I added fields to orders", "the source columns changed", "what fields does the
+> orders table have", "clean up after the inquiries table dropped column
+> referrer_id", "run this query", "test this SQL", "does this lynk SQL execute".
+
+This flow owns the warehouse-facing workflow: it lists schemas and sources, fetches a source's columns, syncs the catalog, reconciles entity schemas (`schema.yml`) when source columns change, and runs ad-hoc Lynk SQL against the semantic layer. Other flows delegate to it whenever they need the warehouse side of the layer — the main build flow (`SKILL.md`) calls it before modeling a new table and to validate that referenced columns exist; the evaluate flow (`references/evaluate.md`) calls it when checking Lynk SQL against the live engine. The data-catalog REST API is the transport; the workflow logic (reconcile flow, hand-off to the main build steps when columns drop, SQL execution) is what makes this a flow rather than a thin API wrapper.
+
+This flow is read-and-API-only on the catalog side. Any `.yml` edits it surfaces (e.g., removing field features whose source column was dropped) are executed by the main build flow (`SKILL.md` Steps 6–7).
+
+## Steps
+
+### 1. Determine the action
+
+Classify the user's request to one of these actions:
+
+| User intent | Action | Method | Route |
+|---|---|---|---|
+| "list schemas", "what schemas do I have" | List schemas | `GET` | `integrations/data/schemas` |
+| "list tables", "list sources", "what tables do I have" | List sources | `GET` | `data-catalog/sources` |
+| "what fields does X have", "show me the columns of X" | Fetch source fields | `GET` | `data-catalog/sources/<id>` |
+| "sync sources", "the columns changed", "I added fields to X", "add the orders table" | Sync sources | `POST` | `data-catalog/sources/sync` |
+| "X dropped column Y, clean up the entity" | Reconcile entity | — | combo: sync + fetch fields + hand off to the main build flow |
+| "run this SQL", "test this query", "does this lynk SQL execute", "paste a SQL and run it" | Run Lynk SQL | `POST` | `query-engine/query` |
+
+Routes above are bare — no `/api/` prefix, no leading `/`. The script prepends `/api/` itself, and a leading `/` gets mangled into a Windows path by Git Bash. `${CLAUDE_PLUGIN_ROOT}/references/rest-api.md` shows full path-prefixed forms for documentation only — never pass those to the script.
+
+If unclear, use `AskUserQuestion` to disambiguate. **Note**: a *schema* is a `DB.SCHEMA` scope (e.g., `MAINDB.PUBLIC`); a *source* is a single table inside that scope, with `id = DB.SCHEMA.TABLE` (e.g., `MAINDB.PUBLIC.ORDERS`).
+
+### 2. Confirm the API token
+
+If `.env` does not have `LYNK_API_TOKEN` set, run:
+
+```
+! "$(command -v python3 || command -v python)" "${CLAUDE_PLUGIN_ROOT}"/scripts/lynk_api.py --print-setup
+```
+
+The script ships inside the plugin at `${CLAUDE_PLUGIN_ROOT}/scripts/lynk_api.py`, but it reads `.env` (and resolves `.lynk`/git branch) from the current working directory — so always run it **from the user's project root**, not from the plugin. The `"$(command -v python3 || command -v python)"` prefix picks whichever Python interpreter the user has, since some envs ship only one of the two binary names.
+
+Ask the user via `AskUserQuestion`: **Set up the token now** (relay the script output, ask user to paste token in chat, then `LYNK_API_TOKEN='<paste>' "$(command -v python3 || command -v python)" "${CLAUDE_PLUGIN_ROOT}"/scripts/lynk_api.py --save-token`) or **Skip** (exit with `Operation not performed — no API token configured.`).
+
+### 3. Run the call
+
+Use the method and route from the table in Step 1 — exactly as written, with no `/api/` and no leading `/`. Add `--env dev` if the user said "on dev". Branch and domain are resolved by the script (current git branch, `default` domain) — pass `--branch` or `--domain` only to override.
+
+```
+! "$(command -v python3 || command -v python)" "${CLAUDE_PLUGIN_ROOT}"/scripts/lynk_api.py <METHOD> <route>
+```
+
+Concrete examples:
+
+```
+! "$(command -v python3 || command -v python)" "${CLAUDE_PLUGIN_ROOT}"/scripts/lynk_api.py GET data-catalog/sources
+! "$(command -v python3 || command -v python)" "${CLAUDE_PLUGIN_ROOT}"/scripts/lynk_api.py GET data-catalog/sources/ANALYTICS.LYNK_VIEWS.ORDERS
+! "$(command -v python3 || command -v python)" "${CLAUDE_PLUGIN_ROOT}"/scripts/lynk_api.py POST data-catalog/sources/sync
+```
+
+**Run Lynk SQL** uses `--data` to pass the query — the body must be a JSON-encoded **string**, not an object. Single-quote the outer shell argument so the inner double quotes survive intact:
+
+```
+! "$(command -v python3 || command -v python)" "${CLAUDE_PLUGIN_ROOT}"/scripts/lynk_api.py POST query-engine/query --data '"SELECT lead_id FROM lead LIMIT 1"'
+```
+
+For queries that span lines or contain special characters, write them to a file first and use `--data-file`:
+
+```
+! printf '%s' '"SELECT c.country_name, METRIC('"'"'fm_ngr'"'"') AS fm_ngr FROM activity_agg_daily a JOIN country c ON c.country_code = a.country_id WHERE a.created_date >= '"'"'2026-01-01'"'"' GROUP BY 1 LIMIT 1"' > /tmp/q.json
+! "$(command -v python3 || command -v python)" "${CLAUDE_PLUGIN_ROOT}"/scripts/lynk_api.py POST query-engine/query --data-file /tmp/q.json
+```
+
+If you don't know the request/response schema for the chosen route, read `${CLAUDE_PLUGIN_ROOT}/references/rest-api.md` in this repo — that is the canonical endpoint reference for these flows. Do not fetch the public docs site for API details; the REST API spec is intentionally not published there.
+
+`<key_source>` (used by the fetch-fields and per-source routes) is the `id` field returned by the list-sources call (format: `DB.SCHEMA.TABLE`).
+
+### 4. Interpret the response
+
+The script prints `{url, method, env, branch, domain, status_code, body}`. Present results to the user concisely. When you need field-level detail and the action table didn't fully cover it, read the relevant section of `${CLAUDE_PLUGIN_ROOT}/references/rest-api.md`.
+
+- **List schemas** — show how many are registered, grouped by `DB`.
+- **List sources** — paginated; use `--query page=N` for further pages. For large tenants, filter client-side by what the user asked about.
+- **Fetch source fields** — show the table `description`, the catalog `keys`, the column count, and the column list; this is the canonical truth for that source. The `description`, `keys`, and count are what the main build flow needs to ground a new model and choose the entity key (`SKILL.md` Step 5), so surface them, not just the columns. An empty `keys: []` means the catalog knows of no primary key — call that out, since it drives the key-verification loop in `SKILL.md` Step 5.
+- **Sync sources** — surface the diff stats verbatim. If `fieldsDeleted > 0`, recommend the reconcile flow (Step 5) before further modeling. If `sourcesCreated > 0` *or* the sync added new fields to an existing source, **actively offer to model the new content** via the main build flow using `AskUserQuestion` — don't just report it as informational. List the new sources / columns explicitly so the user can pick which to model now. If the user said "add the orders table", treat that as standing consent to model immediately and hand the column list off to the main build flow.
+- **Run Lynk SQL** — on `200`, show row count and the first few rows; offer to show `metadata.query_metadata.rendered_sql` (the warehouse SQL the engine emitted) and `semantics_used` (which entities / features / metrics / relationships the engine resolved) when the user is debugging *why* a query returned what it did. On `422`, parse `detail`: if it's an array (FastAPI input error), the body shape was wrong — verify you JSON-encoded the SQL string; if it's an object with `error_type: SemanticsConsumptionError`, surface the `message` verbatim and point the user at the entity / feature it names. On `500`, parse `detail.error_type`: `InternalError` with `SQL error: ParserError(...)` is a Lynk-SQL syntax issue (quote the parser message); a bare `"Request failed"` string with no `detail` envelope means the branch's semantic layer is in a broken state — recommend running the backend validity check (`references/validate.md`) on the same branch before retrying.
+- **401 / 403** — token issue; route to the token handshake in `references/validate.md` Step 4 (`--print-setup`, `--save-token`).
+- **404** on a `<key_source>` — that `id` isn't in the list-sources response; the user may need to sync first.
+- **4xx / 5xx otherwise** — quote the body's error message verbatim.
+
+If the response shape is unexpected, show the raw body and ask how to proceed instead of guessing.
+
+### 5. Reconcile entity schemas on source change
+
+When source columns change in the warehouse, entity schemas that reference them silently break — features whose `sql` points at a dropped column will fail at query time, features that compose from those features will cascade, and metrics that aggregate over them will produce wrong results. This step closes that gap: detect the drift, walk the dependency tree, and hand the cleanup to the main build flow.
+
+When the user said "I added/updated fields to X", "columns changed", or asked to clean up after a dropped column:
+
+1. **Run sync first** (Step 3 sync action) so the catalog reflects the latest source state. If `body.fieldsDeleted > 0` you definitely need to reconcile; if 0 you may still want to surface added fields.
+2. **Fetch current columns** (Step 3 fetch-fields action) for the affected source.
+3. **Find affected entity schemas** — entities rooted in this table:
+   ```
+   ! grep -lrE "identity:\s*<id>" .lynk/
+   ```
+   (also grep the bare table name to catch `table_relationships` targeting it).
+4. **Diff** the fetched `columns[]` against the entity's features. Build a dependency tree of what each removed column impacts:
+   - Features whose `sql` references the removed column.
+   - Features/metrics that compose from those features.
+   - Relationships whose steps join on removed columns.
+   - Examples / eval cases referencing removed features or metrics.
+5. **Show the dependency tree** to the user and confirm before any removals. **For new columns, actively offer to model them** via the main build flow using `AskUserQuestion` (e.g., *"3 new columns appeared in `inventory`: `restock_eta`, `supplier_tier`, `is_clearance`. Model them now as features? Yes / Defer / Skip the boolean"*). Don't just report new columns as informational — the user came here because of a source change, so offering to close the loop is the natural next step.
+6. **Hand off the removal list to the main build flow** (`SKILL.md` Steps 6–7) to execute the schema edits. **Do not write `.yml` from this flow.** Build's own Step 8 then offers validation/evaluation to surface any remaining issues.
+
+## Output Format
+
+- Always state the env (prod / dev) and branch on the summary line.
+- For list and fetch responses, present results as compact bullet lists or tables grouped by schema or source.
+- Quote API error messages verbatim — never paraphrase.
+- For reconciliation, always show the full dependency tree before any removal, and always route writes through the main build flow (`SKILL.md` Steps 6–7).
