@@ -1,0 +1,160 @@
+# Business-perspective cases: a user describes their business/warehouse and asks how
+# to model it. The agent must route the scenario to the right drawers and docs.
+cases:
+- name: nba-games-teams
+  inputs:
+    question: "Our business is the NBA. Our warehouse has a games table (with game_id, home_team_id, away_team_id, game_date, scores) and a teams table (team_id, name, city). How should we model games and teams in the Lynk semantic layer?"
+  metadata:
+    perspective: business
+    business: nba
+    tags: [entity, relationships]
+    expected_docs:
+      required:
+        - semantics_docs/concepts/entity/README.md
+        - semantics_docs/concepts/entity/schema-yml/relationships.md
+      optional:
+        - semantics_docs/concepts/entity/schema-yml/README.md
+        - semantics_docs/concepts/entity/schema-yml/identity-and-imports.md
+    optimal_hops: 4
+    rubric: |
+      Pass requires ALL of:
+      - Models game and team as two ENTITIES, each rooted via identity in its physical
+        table (3-segment database.schema.table) with keys.
+      - Mentions the entity split: ENTITY.md (prose) + schema.yml (structure).
+      - Recommends entity relationships from game to team for home and away — TWO
+        separate relationships (one per role), since each relationship is flat and
+        directional (e.g. game_to_home_team, game_to_away_team).
+      Must NOT:
+      - Model the home/away link as a single relationship with branching join logic.
+      - Suggest entities live outside a domain.
+    rationale: |
+      concepts/entity/README.md owns the ENTITY.md+schema.yml split; relationships.md
+      owns "Each relationship is flat. Two ways to connect the same pair of things means
+      two relationships" — exactly the home/away case.
+      Optimal path: SUMMARY.md -> entity/README.md -> schema-yml/README.md (or direct)
+      -> relationships.md = ~4 hops.
+
+- name: clinic-noshow-metric
+  inputs:
+    question: "We run a chain of dental clinics. Our appointments table has a status column ('completed', 'no_show', 'cancelled') and a clinic_id. We want to track no-show rate — is that a feature or a metric in Lynk, and how should it be defined?"
+  metadata:
+    perspective: business
+    business: dental-clinics
+    tags: [metric, feature]
+    expected_docs:
+      required:
+        - semantics_docs/concepts/entity/schema-yml/metric.md
+      optional:
+        - semantics_docs/concepts/entity/schema-yml/feature.md
+        - semantics_docs/reference/sql-expressions.md
+    optimal_hops: 3
+    rubric: |
+      Pass requires ALL of:
+      - Says a rate across appointments is a METRIC (an aggregation), defined on the
+        appointment entity (metrics are entity-local, defined on the entity whose rows
+        they aggregate).
+      - Defines it as a ratio of sums / conditional aggregate over all appointments
+        (e.g. SUM(CASE WHEN status='no_show'...)/NULLIF(COUNT(*),0)) — NOT an average
+        of per-row ratios.
+      - Mentions stating the scale (0-1 vs 0-100) in the description, OR that per-clinic
+        slicing happens at query time rather than one metric per clinic.
+      Must NOT:
+      - Define the rate as a feature, or as AVG of a per-row percentage.
+    rationale: |
+      concepts/entity/schema-yml/metric.md owns aggregations, entity-locality, and the
+      explicit "ratio of sums — never an average of per-row ratios" rule with a
+      completion_rate example nearly identical to this question.
+      Optimal path: SUMMARY.md -> entity/README.md (or schema-yml) -> metric.md = 3 hops.
+
+- name: freight-two-teams
+  inputs:
+    question: "We're a freight marketplace. Our ops team and finance team both analyze shipments, but they use different vocabulary (ops says 'load', finance says 'shipment') and need very different tones in answers. Should we build one Lynk project or two, and how do we structure it?"
+  metadata:
+    perspective: business
+    business: freight-marketplace
+    tags: [domain, glossary]
+    expected_docs:
+      required:
+        - semantics_docs/concepts/domain/README.md
+      optional:
+        - semantics_docs/concepts/domain/glossary.md
+        - semantics_docs/concepts/domain/lynk-md.md
+        - semantics_docs/README.md
+    optimal_hops: 2
+    rubric: |
+      Pass requires ALL of:
+      - ONE project with TWO domains (one per team) — a domain is one team's agent,
+        and different vocabulary/audience is exactly the signal to create a new domain.
+      - Per-domain GLOSSARY.yml carries each team's vocabulary ('load' vs 'shipment');
+        per-domain LYNK.md carries the team's voice/orientation.
+      Bonus (not required): shared entities live in a shared/core domain both build on.
+      Must NOT:
+      - Recommend two separate projects, or one domain serving both teams.
+    rationale: |
+      concepts/domain/README.md: "Sizing a domain — create a new domain when you have a
+      new audience whose questions, vocabulary, or definitions would be hurt by another
+      team's bleeding into their answers."
+      Optimal path: SUMMARY.md -> domain/README.md = 2 hops.
+
+- name: podcast-churn-skill
+  inputs:
+    question: "We run a podcast subscription app. Every month we investigate subscriber churn the same way: first check listening-hours decline, then payment failures, then plan downgrades. Where in the Lynk semantic layer should we encode this recurring procedure?"
+  metadata:
+    perspective: business
+    business: podcast-app
+    tags: [skill]
+    expected_docs:
+      required:
+        - semantics_docs/concepts/skill.md
+      optional:
+        - semantics_docs/concepts/entity/schema-yml/metric.md
+        - semantics_docs/README.md
+    optimal_hops: 2
+    rubric: |
+      Pass requires ALL of:
+      - Encode it as a SKILL: .lynk/domains/<domain>/skills/<name>/SKILL.md.
+      - Notes skills are lazy — indexed/loaded by their frontmatter description, so the
+        description must make relevance obvious.
+      - Notes skills use existing features/metrics but never define new schema — if a
+        needed value (e.g. listening-hours decline) is missing, add a feature/metric to
+        the entity first.
+      Must NOT:
+      - Put the procedure in a policy (it's reasoning, not operating protocol) or in
+        ENTITY.md.
+    rationale: |
+      concepts/skill.md owns verb-shaped recurring analysis procedures ("churn
+      investigation" is literally its example) and the "skills don't define schema" rule.
+      Optimal path: SUMMARY.md -> skill.md = 2 hops.
+
+- name: vineyard-extend-entity
+  inputs:
+    question: "We're a wine club. Our core domain has a customer entity rooted in our warehouse customers table. The marketing team wants their own customer entity that reuses core's keys and some of its definitions but adds campaign-specific attributes. How do we set that up in Lynk?"
+  metadata:
+    perspective: business
+    business: wine-club
+    tags: [entity, identity, imports]
+    expected_docs:
+      required:
+        - semantics_docs/concepts/entity/schema-yml/identity-and-imports.md
+      optional:
+        - semantics_docs/concepts/entity/README.md
+        - semantics_docs/concepts/lynk-yml.md
+    optimal_hops: 3
+    rubric: |
+      Pass requires ALL of:
+      - In the marketing domain, declare a customer entity with identity: core.customer
+        (2-segment domain.entity form) — the extending case.
+      - keys are inherited from the parent and NOT re-authored; imports are explicit
+        cherry-picks (features/metrics/entity_relationships listed one by one, no
+        auto-inheritance), by reference not copy.
+      - Local marketing-specific features are added on top, in the same schema.yml.
+      Bonus (not required): extension is cross-domain only and requires the project
+      topology / shared_domain (core) to be configured.
+      Must NOT:
+      - Root marketing's customer in the physical table again as the way to "reuse"
+        core's definitions, or claim imports are automatic/wholesale.
+    rationale: |
+      concepts/entity/schema-yml/identity-and-imports.md owns the extending case:
+      2-segment identity, inherited keys, explicit imports; its example is literally
+      marketing extending core.customer.
+      Optimal path: SUMMARY.md -> entity/README.md -> identity-and-imports.md = 3 hops.

@@ -1,0 +1,11 @@
+# Model aliases get repointed by Anthropic over time; the resolved model that
+# actually ran is captured from each session's init message into the run's meta.json.
+agent_model: claude-sonnet-5
+# Different family than agent_model to avoid self-grading bias.
+judge_model: claude-opus-4-8
+# System prompt preset for the agent under test. The SDK default is an EMPTY
+# prompt, which would evaluate a different agent than the one users run.
+system_prompt: claude_code
+per_case_timeout_s: 240
+max_concurrency: 3
+max_turns: 30

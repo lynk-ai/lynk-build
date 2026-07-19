@@ -1,0 +1,224 @@
+generated:
+  at: '2026-07-16T16:04:47.927039+00:00'
+  model: claude-opus-4-8
+  perspective: business
+  business: null
+cases:
+- name: parking-entity-prose-vs-schema
+  status: ready_for_review
+  inputs:
+    question: 'We run a chain of paid parking garages. Our warehouse has a transactions table (transaction_id,
+      lot_id, member_id, entry_ts, exit_ts, amount_cents), a lots table (lot_id, name, city, capacity),
+      and a members table (member_id, plan, signup_date). Two things trip everyone up: amount_cents is
+      stored in cents, and exit_ts is null while a car is still parked. When we bring transactions into
+      the semantic layer, where do those two gotchas get written down, versus where we define the actual
+      columns and the revenue sums?'
+  metadata:
+    perspective: business
+    tags:
+    - entity
+    - prose-vs-structure
+    - modeling
+    business: city-parking
+    expected_docs:
+      required:
+      - semantics_docs/concepts/entity/README.md
+      - semantics_docs/concepts/entity/entity-md.md
+      - semantics_docs/concepts/entity/schema-yml/README.md
+      optional:
+      - semantics_docs/README.md
+      - semantics_docs/concepts/entity/schema-yml/feature.md
+      - semantics_docs/concepts/entity/schema-yml/metric.md
+    optimal_hops: 4
+    rubric: 'Pass requires ALL of:
+
+      - Describes an entity as a folder containing two files: a prose ENTITY.md and a structured schema.yml
+
+      - Routes the business gotchas (amount stored in cents; the null exit_ts while a car is still parked)
+      into ENTITY.md as prose quirks/conventions/business context
+
+      - Routes the column/attribute definitions and the revenue aggregations into schema.yml (as features
+      and metrics)
+
+      Must NOT:
+
+      - Put the gotchas/conventions in schema.yml, or put the column or aggregation definitions in ENTITY.md
+
+      - Recommend a single combined file, or split this one entity''s knowledge across separate knowledge/instructions/metrics
+      files
+
+      Bonus (does not affect pass):
+
+      - Notes ENTITY.md is short by design and requires frontmatter'
+    rationale: 'entity/README.md owns the claim that an entity is a folder holding a prose ENTITY.md and
+      a structured schema.yml (one concept, one home). entity-md.md owns that ENTITY.md is the prose side
+      — quirks, conventions, business context — so the cents and null-exit gotchas land there; it also
+      owns ''short by design, frontmatter required.'' schema-yml/README.md owns that schema.yml is the
+      structured definition holding features (columns/derivations) and metrics (aggregations such as revenue
+      sums). README.md''s mental-model table plus feature.md/metric.md give supporting detail but are
+      not strictly necessary. Optimal path: README.md (hop1 — mental model: entity = ENTITY.md prose +
+      schema.yml structure) → concepts/entity/README.md (hop2 — the two-file folder) → concepts/entity/entity-md.md
+      (hop3 — quirks/conventions go in the prose file) → concepts/entity/schema-yml/README.md (hop4 —
+      columns and revenue sums go in the structured file).'
+  critic:
+    scores:
+      clarity: 5
+      no_leakage: 5
+      groundedness: 5
+      routing_value: 5
+    optimal_hops_plausible: true
+    verdict: approve
+    notes: 'Strong case. The prose-vs-structure split is unambiguous and fully grounded: entity/README.md
+      owns the two-file folder model, entity-md.md explicitly names ''quirks, conventions, gotchas, business
+      context'' as ENTITY.md content (the cents/null-exit gotchas mirror the ''first_paid_at is null for
+      trials'' example), and schema-yml/README.md + feature.md/metric.md own columns-as-features and revenue-sums-as-metrics
+      (see completed_revenue = SUM(order.net_amount)). No leakage — question uses a parking domain and
+      never names files, paths, features, or metrics. Routing is genuinely required (Lynk-specific split).
+      optimal_hops=4 is consistent: README.md(1) -> entity/README(2) -> entity-md(3) -> schema-yml/README(4).
+      Minor nit: rubric says aggregations go in as ''features and metrics'' where revenue sums are strictly
+      metrics, but both live in schema.yml so it''s harmless.'
+    model: claude-opus-4-8
+- name: nursery-order-customer-relationship
+  status: needs_revision
+  inputs:
+    question: We run an online plant nursery. Our warehouse has an orders table (order_id, customer_id,
+      order_ts, total_cents, warehouse_id), a customers table (customer_id, region, acquired_channel),
+      and a warehouses table (warehouse_id, state). We want to break our order revenue down by the customer's
+      region and the channel they came in through, even though those columns live on the customers table.
+      How do we set that up so an order 'knows' its customer's region and channel without us pre-joining
+      everything into one big table?
+  metadata:
+    perspective: business
+    tags:
+    - relationships
+    - feature
+    - joins
+    business: plant-nursery
+    expected_docs:
+      required:
+      - semantics_docs/concepts/entity/schema-yml/relationships.md
+      - semantics_docs/concepts/entity/schema-yml/feature.md
+      optional:
+      - semantics_docs/concepts/entity/schema-yml/README.md
+      - semantics_docs/concepts/entity/schema-yml/metric.md
+      - semantics_docs/SUMMARY.md
+    optimal_hops: 4
+    rubric: 'Pass requires ALL of:
+
+      - Declares a relationship on the orders entity that points to the customers table/entity (a join
+      path), rather than the user hand-writing a SQL join
+
+      - States the relationship is directional and carries a cardinality (many orders to one customer)
+
+      - Defines the customer''s region and acquired_channel as features on orders whose value is pulled
+      across that relationship
+
+      Must NOT:
+
+      - Model the region/channel cross-table lookup as a metric
+
+      - Claim orders and customers must be pre-joined or flattened into one physical table before they
+      can be queried together
+
+      Bonus (does not affect pass):
+
+      - Notes that order revenue itself is a metric (an aggregation defined on orders), distinct from
+      the features pulled across the relationship'
+    rationale: 'relationships.md owns that a relationship declares a directional join path from an entity
+      to another physical table or entity, specified with per-step cardinality (many orders -> one customer),
+      which removes the need to pre-flatten tables. feature.md owns that a feature can be a value pulled
+      across a relationship, so customers.region and customers.acquired_channel become row-grain features
+      on orders. schema-yml/README.md (optional) situates relationships and features inside schema.yml;
+      metric.md (optional) owns that revenue is an aggregation/metric. Optimal path: SUMMARY.md (hop1
+      — TOC lists the schema.yml children) → concepts/entity/schema-yml/README.md (hop2 — schema.yml is
+      where relationships and features are declared) → concepts/entity/schema-yml/relationships.md (hop3
+      — declare the directional many-to-one join to customers) → concepts/entity/schema-yml/feature.md
+      (hop4 — define region/channel as features pulled across that relationship).'
+  critic:
+    scores:
+      clarity: 5
+      no_leakage: 5
+      groundedness: 5
+      routing_value: 5
+    optimal_hops_plausible: false
+    verdict: revise
+    notes: 'Excellent case: clean single answer (order→customer entity relationship, many_to_one; region/channel
+      as cross-relationship features on order), no term/path leakage, and both required docs are strongly
+      grounded (feature.md''s customer_email cross-entity example maps exactly; relationships.md covers
+      directional per-direction cardinality). Only issue: optimal_hops=4 overcounts. SUMMARY.md''s TOC
+      links relationships.md and feature.md directly (as schema.yml children), so shortest sensible path
+      is SUMMARY(1)→relationships(2)→feature(3)=3 hops; README.md is an optional, non-required intermediate.
+      Set optimal_hops to 3.'
+    model: claude-opus-4-8
+- name: grocery-shared-reference-file
+  status: ready_for_review
+  inputs:
+    question: We're a regional grocery co-op. Our warehouse has a sales table (sale_id, store_id, sku,
+      ts, units, revenue_cents), a stores table (store_id, region, banner), and a members table (member_id,
+      tier, joined_on). We also maintain a two-page writeup of exactly how our loyalty tiers get calculated,
+      plus a list of holiday date ranges — and at least four different analyses across our marketing and
+      finance teams all lean on both. Neither is really about any single table. Where should that shared
+      content live so we define it once instead of pasting it into every analysis?
+  metadata:
+    perspective: business
+    tags:
+    - reference-files
+    - cross-cutting
+    - shared-content
+    business: grocery-coop
+    expected_docs:
+      required:
+      - semantics_docs/concepts/reference-files.md
+      optional:
+      - semantics_docs/README.md
+      - semantics_docs/reference/markdown-format.md
+    optimal_hops: 2
+    rubric: 'Pass requires ALL of:
+
+      - Recommends placing the shared loyalty-tier writeup and the holiday date-range list in a reference
+      file, defined once
+
+      - States reference files are the escape hatch for cross-cutting content that lives outside the domain
+      primitives (not an entity/skill/policy)
+
+      - States the reference file is pointed at via an absolute /.lynk/ reference from the places that
+      use it
+
+      Must NOT:
+
+      - Recommend copying or duplicating the content into each entity or skill that references it
+
+      - Model the cross-cutting writeup as an entity, a metric, or a policy
+
+      Bonus (does not affect pass):
+
+      - Notes reference files can sit at the .lynk/ root alongside domains so multiple domains (marketing
+      and finance) can reach them'
+    rationale: 'reference-files.md owns that reference files are user-organized files outside the domain
+      primitives — the escape hatch for cross-cutting content — reached by absolute /.lynk/ references,
+      which is exactly where a shared, non-tabular writeup referenced by many analyses belongs. README.md
+      owns the supporting facts that shared reference files can sit at the .lynk/ root alongside domains
+      (so multiple domains reach the same content) and that the six drawers (LYNK.md, GLOSSARY.yml, domains,
+      entities, skills, policies) have no home for cross-cutting shared prose. markdown-format.md (optional)
+      details the reference grammar for @ injection and bare/absolute paths. Optimal path: README.md (hop1
+      — the six drawers show none fits cross-cutting shared prose, and the ''.lynk/ tree'' section links
+      reference files) → concepts/reference-files.md (hop2 — the escape hatch, defined once and referenced
+      by absolute /.lynk/ path).'
+  critic:
+    scores:
+      clarity: 5
+      no_leakage: 5
+      groundedness: 5
+      routing_value: 5
+    optimal_hops_plausible: true
+    verdict: approve
+    notes: 'Strong case. Question frames a realistic cross-cutting, non-tabular, multi-team shared-content
+      problem without naming ''reference files'' or any path. Every rubric claim is directly grounded
+      in reference-files.md (escape hatch for cross-cutting content outside domain primitives; reached
+      via absolute /.lynk/ references; defined once, not duplicated) and README.md (root reference files
+      reachable from every domain; six drawers have no home for cross-cutting prose). Routing is genuine:
+      distinguishing reference files from entity/metric/policy requires reaching the concept doc. optimal_hops=2
+      (README lists drawers + links reference files → reference-files.md) is consistent with the shortest
+      sensible path. Minor: business phrasing ''define it once''/''shared content'' lightly echoes doc
+      language but does not reveal the answer term.'
+    model: claude-opus-4-8

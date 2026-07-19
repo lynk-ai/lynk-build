@@ -1,0 +1,135 @@
+# Drawer-perspective cases: questions about the semantic layer itself.
+# expected_docs paths are plugin-root-relative and validated against disk at load time.
+cases:
+- name: policy-vs-skill
+  inputs:
+    question: "What's the difference between a policy and a skill in Lynk?"
+  metadata:
+    perspective: drawers
+    tags: [policy, skill]
+    expected_docs:
+      required:
+        - semantics_docs/concepts/policy.md
+        - semantics_docs/concepts/skill.md
+      optional:
+        - semantics_docs/README.md
+    optimal_hops: 3
+    rubric: |
+      Pass requires ALL of:
+      - States that a policy is an eager, always-apply behavioral rule for how the
+        agent operates/presents (examples: output format, clarification behavior).
+      - States that a skill is a lazy prose procedure for a class of analytical
+        reasoning (how the agent thinks/reasons), loaded on demand via its description.
+      Must NOT:
+      - Claim skills define schema (features/metrics) — skills use schema, never define it.
+      - Conflate policies with entity facts or glossary terms.
+    rationale: |
+      concepts/policy.md owns "how to operate"; concepts/skill.md owns "how to reason";
+      each page's Related section states the contrast explicitly.
+      Optimal path: SUMMARY.md -> policy.md -> skill.md = 3 hops.
+
+- name: domain-glossary-merge
+  inputs:
+    question: "Where do domain-level glossaries live in a Lynk project, and what happens when a domain defines a term that already exists in the root glossary?"
+  metadata:
+    perspective: drawers
+    tags: [glossary, domain]
+    expected_docs:
+      required:
+        - semantics_docs/concepts/domain/glossary.md
+      optional:
+        - semantics_docs/concepts/glossary.md
+        - semantics_docs/reference/layout-and-naming.md
+    optimal_hops: 2
+    rubric: |
+      Pass requires ALL of:
+      - Gives the location .lynk/domains/<domain>/GLOSSARY.yml (one optional glossary per domain).
+      - States that the domain glossary merges with the root glossary and the DOMAIN
+        entry wins on a key collision.
+      - States (or implies) that terms the domain doesn't redefine are inherited from
+        the root unchanged.
+      Must NOT:
+      - Claim a collision is an error (the docs say it's expected behavior).
+    rationale: |
+      concepts/domain/glossary.md owns the scope/merge behavior: "On a key collision,
+      the domain entry wins". Optimal path: SUMMARY.md -> domain/glossary.md = 2 hops.
+
+- name: always-vs-lazy-loading
+  inputs:
+    question: "Which parts of a Lynk project are always loaded into the agent's context, and which are loaded on demand?"
+  metadata:
+    perspective: drawers
+    tags: [loading, architecture]
+    expected_docs:
+      required:
+        - semantics_docs/README.md
+      optional:
+        - semantics_docs/concepts/skill.md
+        - semantics_docs/concepts/entity/README.md
+    optimal_hops: 1
+    rubric: |
+      Pass requires ALL of:
+      - Eager/always loaded: orientation (LYNK.md), vocabulary (GLOSSARY.yml), and policies.
+      - Lazy/on demand: entities and skills — the agent indexes them by description and
+        loads only what the question needs.
+      Must NOT:
+      - Swap the two groups (e.g. claim policies are lazy or skills are always loaded).
+    rationale: |
+      README.md's "Four ideas" section states this directly ("Some content is always
+      loaded; some is loaded on demand"). Anchor/smoke case: optimal_hops 1 is trivially
+      matched by most runs; its hop efficiency carries no signal.
+
+- name: policy-override-default
+  inputs:
+    question: "How do I override one of Lynk's default policies with my own version, and how do I later go back to the Lynk default?"
+  metadata:
+    perspective: drawers
+    tags: [policy]
+    expected_docs:
+      required:
+        - semantics_docs/concepts/policy.md
+      optional:
+        - semantics_docs/reference/markdown-format.md
+    optimal_hops: 2
+    rubric: |
+      Pass requires ALL of:
+      - Override: create a policy folder named after the Lynk type (output-format or
+        clarification), and your POLICY.md fully replaces Lynk's default.
+      - Fall back: setting enabled: false on the override falls back to Lynk's default.
+      Must NOT:
+      - Claim the override merges/extends the default (it fully replaces it).
+    rationale: |
+      concepts/policy.md Format section: "name the policy folder after the Lynk type...
+      fully replaces the default. Setting enabled: false on an override falls back to
+      Lynk's default." Optimal path: SUMMARY.md -> policy.md = 2 hops.
+
+- name: cross-domain-shared-behavior
+  inputs:
+    question: "We want the exact same compliance disclaimer applied to every domain's answers. Where should that disclaimer text live, and how does each domain use it?"
+  metadata:
+    perspective: drawers
+    tags: [policy, reference-files, cross-domain]
+    expected_docs:
+      required:
+        - semantics_docs/concepts/policy.md
+        - semantics_docs/concepts/reference-files.md
+      optional:
+        - semantics_docs/reference/markdown-format.md
+        - semantics_docs/concepts/lynk-yml.md
+    optimal_hops: 3
+    rubric: |
+      Pass requires ALL of:
+      - States that policies compose per domain and do NOT merge/share across domains.
+      - Recommends putting the shared disclaimer prose in a reference file at the .lynk
+        root (outside domains/), reachable from every domain.
+      - Each domain's policy pulls the text in via an @ file reference (injection), e.g.
+        @/.lynk/docs/....
+      Acceptable alternative mention (bonus, not required): injecting from the shared
+      core domain per topology.
+      Must NOT:
+      - Claim policies automatically apply across domains or merge across scopes.
+    rationale: |
+      concepts/policy.md: "Composition is per domain. Policies don't merge across scopes.
+      For behavior shared across domains, put the prose in a reference file... and inject
+      it from each domain's policy with an @ file reference."
+      Optimal path: SUMMARY.md -> policy.md -> reference-files.md = 3 hops.
