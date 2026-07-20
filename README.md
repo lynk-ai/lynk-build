@@ -40,8 +40,9 @@ Manage installed plugins anytime with `/plugin`.
 - **Data-source & tool integrations** — the `integrations` skill front-doors Snowflake (repo-level
   MCP, read-only), plus Linear, Slack, and Notion (claude.ai hosted connectors). Each ships a
   usage + setup reference; setup is per-customer.
-- **A methodology library + deep audit** — the `library` pipeline (build methodology, metric safety,
-  verification) and the `semantic-layer-audit` skill (whole-layer, execution-grounded audit).
+- **A research-only library + deep audit** — the `lynk-research` pipeline (a librarian picks the
+  relevant books, scholars read the right chapters; grounded, cited, cheap) and the
+  `semantic-layer-audit` skill (whole-layer, execution-grounded audit).
 
 ## Auto-update
 
@@ -51,36 +52,31 @@ Auto-update is off by default for third-party marketplaces and there is no insta
 
 ```
 lynk-build/
-├── hooks/            # hooks.json + operating-contract.md (SessionStart contract)
-├── scripts/          # hook scripts · operating-contract.sh · lynk_api.py · bk (library CLI)
+├── hooks/            # hooks.json · operating-contract.md (SessionStart contract) · enrich_subagent.py (library content injector)
+├── scripts/          # hook scripts · operating-contract.sh · lynk_api.py
+├── bin/              # on PATH for the library skills: generate_library_index · generate_book_toc · populate_chapters
 ├── references/       # shared refs: content-rules · lynk-docs (bundled-docs nav) · rest-api
 ├── semantics_docs/   # Lynk semantics docs (README, SUMMARY, api, concepts, reference) — grounding source
-├── library/          # 6 gate-verified methodology books from lynk-book (read-only)
-├── skills/           # lynk-build · lynk-ask · integrations · library (pipeline) · bk-search · semantic-layer-audit
-└── subagents/        # librarian (router/orchestrator) · book-reader (scout)
+├── library/          # research-only book library (index.md + chapters/NN-*.md) — see library/README.md
+└── skills/           # lynk-build · lynk-ask · integrations · semantic-layer-audit · lynk-research · librarian · scholar
 ```
 
-The books: `best-context` · `progressive-disclosure` · `skills` · `subagents` ·
-`evals` · `semantic-layer`. (In the authoring repo they carry numbered IDs;
-shipped names drop the prefix.)
+**The library pipeline:** `lynk-research` (router) enriches the question and calls the
+`librarian` skill; the librarian selects books from the injected catalog and dispatches one
+`scholar` per book to read the right chapters; a `PostToolUse` hook (`enrich_subagent.py`, gated on
+the librarian) materializes the selected chapters' content into the router's context — cited as
+`book · chapter`. The catalog and each book's TOC are injected at skill **load time** via the
+`bin/` scripts, so the maps cost zero model tool calls. Add books under `library/` — see
+`library/README.md`.
 
 **Environment contract:** `CLAUDE_PLUGIN_ROOT` → where the plugin's files live (docs, references,
-scripts, books, `bk`); `BK_DATA` (set by the hooks) → the consumer project's `.bk/` for ALL
-library state (reads log, gaps, fetch files) — the plugin folder is never written to. When the
-librarian can't answer, demand is recorded in the consumer's `.bk/gaps.jsonl` — collect those;
-they are the library's writing backlog. Skills read the bundled docs at
-`${CLAUDE_PLUGIN_ROOT}/semantics_docs/` and run `lynk_api.py` from the **customer** project root
-(so it resolves the customer's `.env`/`.lynk`).
+scripts, `bin/`, `library/`). Skills read the bundled docs at `${CLAUDE_PLUGIN_ROOT}/semantics_docs/`
+and run `lynk_api.py` from the **customer** project root (so it resolves the customer's `.env`/`.lynk`).
 
 ## The two knowledge lanes
 
 - **`semantics_docs/` — the WHAT**: Lynk syntax, formats, fields, API reference.
 - **`library/` — the HOW**: build methodology, metric safety, verification recipes,
   agent/eval design. The `lynk-build` skill owns the build methodology; the hooks steer every
-  semantic-layer change through it, and it draws on the library for deeper methodology. Pure
-  "how does Lynk work" questions use the docs only (or `lynk-ask`).
-
-Books are rendered from the [lynk-book](../lynk-book) authoring repo and are
-read-only here — `bk` refuses writes beside the hidden `.bundle-version` marker
-(which also records exactly which lynk-book commit the books came from). To
-update the books, render a new bundle there and bump the plugin version.
+  semantic-layer change through it, and it draws on the `lynk-research` library for deeper
+  methodology. Pure "how does Lynk work" questions use the docs only (or `lynk-ask`).

@@ -1,0 +1,24 @@
+[project]
+name = "lynk-build-evals"
+version = "0.1.0"
+description = "Eval suites for lynk-build plugin skills"
+requires-python = ">=3.11"
+dependencies = [
+    "claude-agent-sdk>=0.2.123",
+    "pytest>=8",
+    "pyyaml>=6",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["."]
+python_files = ["evals_run.py", "eval_*.py"]
+python_functions = ["eval_*"]
+# importlib mode: every suite's runner is named `evals_run.py`, and the suite dirs
+# have hyphens (can't be packages) — importlib gives each a unique module identity
+# so the duplicate basenames don't clash. pythonpath puts evals/ on sys.path so
+# suites can `import harness` (evaluators load by file path via harness.load_evaluator).
+addopts = "-v -rA --import-mode=importlib"
+pythonpath = ["."]
+markers = [
+    "evaluation: runs live LLM sessions (costs money)",
+]

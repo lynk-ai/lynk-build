@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Renders the book catalog (id, name, description, labels) from library/*/index.md.
+# Callable by bare name (plugin bin is on PATH); self-locates the plugin root.
+set -uo pipefail
+SELF="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+ROOT="$(dirname "$SELF")"
+LIB="$ROOT/library"
+[ -d "$LIB" ] || { echo "(library is empty)"; exit 0; }
+
+fm() { awk 'NR==1&&/^---/{f=1;next} f&&/^---/{exit} f' "$1" 2>/dev/null; }
+field() { printf '%s\n' "$1" | sed -n "s/^$2:[[:space:]]*//p" | head -1; }
+
+shopt -s nullglob
+found=0
+for idx in "$LIB"/*/index.md; do
+  found=1
+  dir="$(basename "$(dirname "$idx")")"
+  f="$(fm "$idx")"
+  echo "## ${dir}"
+  echo "name: $(field "$f" name)"
+  echo "description: $(field "$f" description)"
+  echo "labels: $(field "$f" labels)"
+  echo
+done
+[ "$found" = 1 ] || echo "(no books found)"

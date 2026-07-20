@@ -1,0 +1,229 @@
+# lynk-research eval — the golden-questions confusion matrix, one reviewable file.
+#
+# Generated from golden-questions.md. Book under test: best-context.
+# The four types together ask: does routing fire when it should, fire PRECISELY
+# when it should, stay quiet when it should, and not over-reach?
+#
+# Per case:
+#   expect_routing  what the pipeline should reach:
+#                     reach-book            — the book, any chapter        (Type 1)
+#                     reach-chapter         — the exact chapter(s) below   (Type 2)
+#                     reach-nowhere         — a research question no book covers (Type 3)
+#                     reach-book-no-chapter — right domain, wrong grain    (Type 4)
+#                     no-activation         — NOT a research question; the lynk-research
+#                                             skill should not fire at all (Type 5). Runs
+#                                             WITHOUT the forcing directive — a real test
+#                                             of description-based triggering.
+#   book            expected book slug (null for reach-nowhere / no-activation)
+#   chapters        exact chapter slug(s) required (reach-chapter only)
+#   question        asked in a fresh session against the plugin
+#   answer_claim    one claim the judge grades happened/didn't against the answer
+#
+# NOTE: these test the `best-context` book, present in the plugin's library/
+# (index.md + chapters/*.md). Chapter slugs below are the chapter filenames
+# without extension (an optional NN- prefix is tolerated).
+
+cases:
+  # ── Type 1 — should reach the book (some chapter) ──────────────────────────
+  - id: q01
+    expect_routing: reach-book
+    book: best-context
+    question: >-
+      As we add entities and examples to nba-demo, the text-to-SQL agent's output
+      is getting worse, not better. How should we think about what it actually
+      needs in context?
+    answer_claim: >-
+      The answer draws on the best-context library — citing at least one
+      best-context chapter as `book · chapter` — rather than answering from
+      general knowledge alone.
+
+  - id: q02
+    expect_routing: reach-book
+    book: best-context
+    question: >-
+      We want the builder to remember past modeling decisions across sessions
+      without that memory going stale. How should stored knowledge evolve?
+    answer_claim: >-
+      The answer draws on the best-context library and cites at least one
+      best-context chapter as `book · chapter`.
+
+  - id: q03
+    expect_routing: reach-book
+    book: best-context
+    question: >-
+      Someone wants to paste the entire glossary and every entity doc into the
+      prompt "to be safe." Good idea or not?
+    answer_claim: >-
+      The answer draws on the best-context library and cites at least one
+      best-context chapter as `book · chapter`.
+
+  - id: q04
+    expect_routing: reach-book
+    book: best-context
+    question: >-
+      The agent keeps confusing two of our team metrics. Before fixing it, how do
+      we identify what kind of context problem this even is?
+    answer_claim: >-
+      The answer draws on the best-context library and cites at least one
+      best-context chapter as `book · chapter`.
+
+  - id: q05
+    expect_routing: reach-book
+    book: best-context
+    question: >-
+      We want some layer knowledge written by the agent and some locked by a
+      human. How should we treat agent-written vs human-approved knowledge?
+    answer_claim: >-
+      The answer draws on the best-context library and cites at least one
+      best-context chapter as `book · chapter`.
+
+  # ── Type 2 — should reach a specific chapter ───────────────────────────────
+  - id: q06
+    expect_routing: reach-chapter
+    book: best-context
+    chapters: [distinguishability]
+    question: >-
+      player_game and team_game both define a total_points metric with the same
+      one-line description, and queries pick the wrong one.
+    answer_claim: >-
+      The answer explains that two concepts must be made distinguishable (their
+      descriptions/names disambiguated) and cites best-context · distinguishability.
+
+  - id: q07
+    expect_routing: reach-chapter
+    book: best-context
+    chapters: [one-concept-one-home]
+    question: >-
+      Gross profit is defined both in the glossary and inside an entity file, and
+      the two have drifted apart. Where should the one definition live?
+    answer_claim: >-
+      The answer says a concept should have exactly one home (one authoritative
+      definition) and cites best-context · one-concept-one-home.
+
+  - id: q08
+    expect_routing: reach-chapter
+    book: best-context
+    chapters: [pointers-not-content]
+    question: >-
+      Our index file has grown to full paragraphs per entry and is getting cut off
+      at the bottom. What belongs in an index?
+    answer_claim: >-
+      The answer says an index should hold pointers, not content, and cites
+      best-context · pointers-not-content.
+
+  - id: q09
+    expect_routing: reach-chapter
+    book: best-context
+    chapters: [living-sources]
+    question: >-
+      nba_knowledge.md has become a giant wall of edge-case caveats. Should we
+      split it, and on what rule?
+    answer_claim: >-
+      The answer gives a rule for splitting a living source document and cites
+      best-context · living-sources.
+
+  - id: q10
+    expect_routing: reach-chapter
+    book: best-context
+    chapters: [when-to-deepen]
+    question: >-
+      One entity file now covers three separate sub-topics. Do we split it into
+      siblings or give it its own folder with an index?
+    answer_claim: >-
+      The answer gives the rule for when to deepen a doc into a folder-with-index
+      versus siblings and cites best-context · when-to-deepen.
+
+  # ── Type 5 — no activation (Lynk syntax/schema/SQL, not a research question) ──
+  # The lynk-research skill should NOT fire for these; the docs (or a decline) own
+  # the lane. Run WITHOUT the forcing directive, so it tests whether the skill's
+  # description correctly keeps it out.
+  - id: q11
+    expect_routing: no-activation
+    book: null
+    question: >-
+      What's the correct YAML syntax for a metric() with a NOT IN exclusion filter
+      in a Lynk entity file?
+    answer_claim: >-
+      The answer treats this as a Lynk syntax/reference question and does NOT present
+      it as drawn from the research library (no best-context book · chapter citation).
+
+  - id: q12
+    expect_routing: no-activation
+    book: null
+    question: >-
+      Which Snowflake data type should transaction_at map to in the schema?
+    answer_claim: >-
+      The answer treats this as a schema/reference question and does NOT present it as
+      drawn from the research library (no best-context book · chapter citation).
+
+  - id: q13
+    expect_routing: no-activation
+    book: null
+    question: >-
+      How do I declare a many-to-many relationship between player and team in
+      entities_relationships.yml?
+    answer_claim: >-
+      The answer treats this as a Lynk syntax/reference question and does NOT present
+      it as drawn from the research library (no best-context book · chapter citation).
+
+  - id: q14
+    expect_routing: no-activation
+    book: null
+    question: What are the join keys connecting player_game to game?
+    answer_claim: >-
+      The answer treats this as a project-specific schema/reference question and does
+      NOT present it as drawn from the research library (no book · chapter citation).
+
+  - id: q15
+    expect_routing: no-activation
+    book: null
+    question: Write the SQL to backfill the season dimension table from raw data.
+    answer_claim: >-
+      The answer treats this as a SQL/coding task and does NOT present it as drawn from
+      the research library (no best-context book · chapter citation).
+
+  # ── Type 4 — should reach the book but NOT a relevant chapter (over-reach trap)
+  # - id: q16
+  #   expect_routing: reach-book-no-chapter
+  #   book: best-context
+  #   question: >-
+  #     Which of the six context types should hold customer PII, and what are the
+  #     compliance rules?
+  #   answer_claim: >-
+  #     The answer states no library chapter covers PII/compliance rules and does
+  #     not fabricate compliance guidance as if it came from the book.
+
+  - id: q17
+    expect_routing: reach-book-no-chapter
+    book: best-context
+    question: How many tokens fit in each Claude model's context window?
+    answer_claim: >-
+      The answer states the library does not cover model context-window token
+      counts and does not present specific numbers as if grounded in the book.
+
+  # - id: q18
+  #   expect_routing: reach-book-no-chapter
+  #   book: best-context
+  #   question: Give me the exact prompt wording to make a subagent's brief strict.
+  #   answer_claim: >-
+  #     The answer states no library chapter provides exact strict-brief prompt
+  #     wording and does not fabricate one as if quoted from the book.
+
+  - id: q19
+    expect_routing: reach-book-no-chapter
+    book: best-context
+    question: Explain the transformer attention math so I can implement it.
+    answer_claim: >-
+      The answer states the library does not teach the attention math and does not
+      present a derivation as if it came from the book.
+
+  # - id: q20
+  #   expect_routing: reach-book-no-chapter
+  #   book: best-context
+  #   question: >-
+  #     The book says compression is lossy — which compression library should we use
+  #     in code?
+  #   answer_claim: >-
+  #     The answer states the library is about what-survives decisions, not code
+  #     libraries, and does not recommend a specific compression library as if
+  #     grounded in the book.

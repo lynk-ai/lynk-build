@@ -1,0 +1,23 @@
+# slugify eval — dummy repo-root .claude skill. Deterministic: the answer must
+# contain the exact expected slug.
+#
+# Per case:
+#   question   asked in a fresh session with the repo's .claude/ loaded
+#   expected   the exact kebab-case slug the skill should produce
+
+cases:
+  - id: s01
+    question: "Slugify this title: Hello, World! 2024"
+    expected: hello-world-2024
+
+  - id: s02
+    question: "Make a URL slug from: Report_v2 (final)"
+    expected: report-v2-final
+
+  - id: s03
+    question: "Turn this into a slug:   spaced   out  "
+    expected: spaced-out
+
+  - id: s04
+    question: "slugify: The Quick Brown Fox"
+    expected: the-quick-brown-fox

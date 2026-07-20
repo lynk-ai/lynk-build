@@ -34,14 +34,14 @@ if not layer:
 # asks ("create...", "how to create...") carry no reference marker and fall through.
 if re.search(REFER, p):
     ctx = ("[layer-request router] Reference question about Lynk - the "
-           "semantics docs own this lane; answer from them. The library is for "
-           "design/build methodology and is not needed for pure reference.")
+           "semantics docs own this lane; answer from them. The lynk-research "
+           "library is for design/build methodology and is not needed for pure reference.")
 elif re.search(MUTATE, p):
     ctx = ("[layer-request router] This request CHANGES the semantic layer. Use "
            "the lynk-build skill — it owns the build methodology: it grounds every "
            "change in the semantics docs (the WHAT — exact format/fields/syntax) "
            "and applies the content rules and verification (the HOW), drawing on "
-           "the library for deeper methodology. Never mutate the layer from memory.")
+           "the lynk-research library for deeper methodology. Never mutate the layer from memory.")
 else:
     sys.exit(0)  # layer-adjacent but neither mutating nor reference — let the agent judge
 

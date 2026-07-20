@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""Read a refs JSON list [{"name","path"}, ...] on stdin, add a "content" field per
+entry (chapter body, frontmatter stripped), print the populated JSON.
+
+Security: paths come from an LLM (the scout), so each is validated to resolve INSIDE
+the plugin's library/ tree, under a chapters/ dir, and to exist. Anything else is
+rejected with content=null + an error, never read."""
+import json, os, sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+LIB = os.path.realpath(os.path.join(ROOT, "library"))
+
+
+def safe_read(path):
+    if not path or not isinstance(path, str):
+        return None, "missing path"
+    full = os.path.realpath(path if os.path.isabs(path) else os.path.join(LIB, path))
+    if not (full == LIB or full.startswith(LIB + os.sep)):
+        return None, "outside library"
+    if (os.sep + "chapters" + os.sep) not in full:
+        return None, "not a chapter"
+    if not os.path.isfile(full):
+        return None, "not found"
+    body = open(full, encoding="utf-8").read()
+    if body.startswith("---"):                       # strip YAML frontmatter
+        parts = body.split("---", 2)
+        if len(parts) == 3:
+            body = parts[2].lstrip("\n")
+    return body, None
+
+
+def main():
+    try:
+        data = json.load(sys.stdin)
+    except Exception as e:
+        print(f"error: bad json ({e})", file=sys.stderr)
+        sys.exit(1)
+    if not isinstance(data, list):
+        print("error: expected a JSON array", file=sys.stderr)
+        sys.exit(1)
+    for e in data:
+        if not isinstance(e, dict):
+            continue
+        content, err = safe_read(e.get("path"))
+        e["content"] = content
+        if err:
+            e["error"] = err
+    json.dump(data, sys.stdout, ensure_ascii=False)
+
+
+if __name__ == "__main__":
+    main()
+
+
+def _demo():
+    # ponytail: self-check for the path guard — the money/security path.
+    assert safe_read("../../../etc/passwd")[0] is None
+    assert safe_read("/etc/passwd")[0] is None
+    assert safe_read("nope/index.md")[0] is None          # not under chapters/

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Renders one book's TOC: book name/description + per-chapter name/description/labels/path.
+# Usage: generate_book_toc <book_slug>
+# Security: validate slug + confirm dir exists before use.
+set -uo pipefail
+SELF="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+ROOT="$(dirname "$SELF")"
+LIB="$ROOT/library"
+
+book="${1:-}"
+case "$book" in
+  ''|*[!a-z0-9._-]*) echo "error: invalid book name '$book'" >&2; exit 1 ;;
+esac
+bdir="$LIB/$book"
+[ -d "$bdir" ] || { echo "error: no such book '$book'" >&2; exit 1; }
+
+fm() { awk 'NR==1&&/^---/{f=1;next} f&&/^---/{exit} f' "$1" 2>/dev/null; }
+field() { printf '%s\n' "$1" | sed -n "s/^$2:[[:space:]]*//p" | head -1; }
+
+bf="$(fm "$bdir/index.md")"
+echo "# book: $book"
+echo "name: $(field "$bf" name)"
+echo "description: $(field "$bf" description)"
+echo
+echo "## chapters"
+shopt -s nullglob
+for ch in "$bdir"/chapters/*.md; do
+  cf="$(fm "$ch")"
+  echo "- name: $(field "$cf" name)"
+  echo "  description: $(field "$cf" description)"
+  echo "  labels: $(field "$cf" labels)"
+  echo "  path: $ch"
+done

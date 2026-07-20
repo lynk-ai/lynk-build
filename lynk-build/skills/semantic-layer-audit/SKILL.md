@@ -32,7 +32,7 @@ trust what the SQL says it computes · DON'T fix from memory · FAIL CLOSED. Ful
 
 ## The four surfaces of correctness — verify at the AUTHORITATIVE one
 - **Docs** (`${CLAUDE_PLUGIN_ROOT}/semantics_docs`) — what a layer must BE. Cite a rule. *(the law)*
-- **Books** — how good context is written. Route via the `library` skill; never read inline. *(principles)*
+- **Books** — how good context is written. Route via the `lynk-research` skill; never read inline. *(principles)*
 - **Warehouse** — what the numbers really ARE. Read-only. *(proves the DATA, not the LAYER)*
 - **Lynk build** — does the layer COMPILE and every field RESOLVE at the consumption layer.
   **This is the authoritative gate.** Static ref-resolution and raw-warehouse queries are
@@ -63,7 +63,7 @@ only sequences them.
 - **2 · Judged fan-out** (Layer 2, discover; book-5 orchestrator-workers) — per entity, dispatch
   `passA` (file alone) and `passB` (file in its graph) as **two separate briefs**.
   **Cap the fan:** batch small entities into a shared worker; sole worker only for large ones.
-  Principle calls (right home? inline vs link?) → route to the librarian, cite `book · page`.
+  Principle calls (right home? inline vs link?) → route via the `lynk-research` skill, cite `book · chapter`.
   **Gate 2→3:** every value candidate must carry `proposed_verification_sql` + an external
   anchor, else it is dropped, not grounded.
 - **3 · Execution-ground** (Layer 2, prove) — dispatch `grounder` **in parallel, one per unique
