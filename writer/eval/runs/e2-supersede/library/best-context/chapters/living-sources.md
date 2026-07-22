@@ -1,0 +1,11 @@
+---
+name: Living sources
+description: Sources split when too big and merge when duplicated — and nothing forces this refactor, so budget for it. Read when a source has grown into a wall of caveats, or two sources drift toward answering the same question — deciding whether to split or merge.
+labels: [refactor, split, merge, staleness, drift, source of truth]
+---
+
+A source of truth doesn't stay put. It grows until it's too big or too blurred to stay accurate, and then it needs to be *split* into focused pieces; or two sources drift into saying almost the same thing, and they need to be *merged* before they disagree. You split on size or accuracy drift — one "customers" source quietly covering two different business meanings of customer — because otherwise every answer that reads it gets a little wrong, silently. You merge on duplication — two sources answering the same question slightly differently — because otherwise it's a clash waiting to happen, with readers getting whichever version they found first.
+
+The catch, and the reason this chapter exists: nothing forces the refactor. Code that outgrows its structure fails review or fails to compile. Context that outgrows its structure just quietly degrades every answer that reads it. Pointers absorb the move — readers migrate, nothing breaks loudly. So **budget for context refactoring the way you budget for code refactoring — split when too big, merge when duplicated — because nothing will force it for you.** The everyday shape of the failure: a wiki note corrected and refined for weeks until it's a wall of caveats, where a reader wades through the whole pile to find what's true *now*; the split into a short current definition plus pointer pages costs one edit and repays every future read.
+
+The way to make it happen is to turn it into an enforceable rule: a page that outgrows itself (caveat pile-up, two meanings, sheer length) is split by the same edit that noticed it, and watching for the signals is someone's named job, not a side effect of whoever happens to be reading — so the refactor nobody is forced to do becomes somebody's responsibility. See [memory-shapes](memory-shapes.md) — A-MEM is this principle running inside a memory system.

@@ -1,0 +1,13 @@
+---
+name: Self-compiled vs. externally curated
+description: Agent-written and human-written knowledge are the same artifact before and after review — the agent proposes, the merge makes it truth. Read when deciding whether agent-written knowledge can be trusted, shared, or promoted to ground truth — and who must approve the promotion.
+labels: [memory, agent-written, review, promotion, trust, curation, human in the loop]
+---
+
+There are two ways knowledge gets made. Self-compiled: an agent writes it from what it observed or derived. Externally curated: a human authored and reviewed it. The insight is that these aren't rival systems — they're the same artifact at two stages, a self-compiled draft becoming curated truth by passing review. It's the same shape as a pull request: proposed by the agent, merged by a human. As a draft, the content is a working opinion — private, per [one-concept-one-home](one-concept-one-home.md), moved forward only by submission to review; once reviewed, the same content is shared truth that readers may rely on blindly, and the merge is what moved it there.
+
+Why the merge must be human for foundational knowledge: readers downstream trust the shared layer without re-checking it. An agent can verify structure and consistency (a gate does exactly that), but the *authority* to declare something true carries liability no agent holds — and the more blindly a layer is trusted, the more human its door must be. The gradient that follows: routine content is agent-gated (verified mechanically against a written standard); the standard itself is human-gated (amendments to foundational rules are always a human merge). Gate the door in proportion to the blast radius of a wrong merge. **Self-compiled and externally-curated aren't rivals — the same artifact before and after review; the agent proposes, the merge is what makes it truth.**
+
+The everyday shape: an agent notices a naming convention in a codebase and drafts a note about it — as a draft, a useful guess; merged after a maintainer confirms it, a rule other agents may follow blindly. Same words, same file — the review is the only thing that changed, and it changed everything.
+
+This is how a trustworthy shared layer is built: content is drafted, then verified against a written standard before it is promoted — which is exactly why readers can rely on promoted content blindly, because the review already happened. The foundational rules that everything else trusts are held to the stricter door: their amendments are always a human merge. See [hook-vs-router](hook-vs-router.md) — the fail-closed admission check is the router this principle demands.

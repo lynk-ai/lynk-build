@@ -1,7 +1,6 @@
 ---
 name: The four operations
 description: WRITE / SELECT / COMPRESS / ISOLATE — the four levers on what's inside the context window right now. Read when deciding what to do about an overfull or polluted context window — offload, fetch back, shrink, or isolate.
-labels: [write, select, compress, isolate, offload, retrieval, context window, levers]
 ---
 
 There is a taxonomy (Lance Martin, LangChain — *Context Engineering for Agents*, 2025 — building on Karpathy) for one problem: *what's inside the context window right now, and what to do about it*. Four levers: push out, pull back in, shrink in place, split off.

@@ -1,0 +1,136 @@
+# book-writer eval — the repo's .claude/ book-writing pipeline.
+# Each case forces the book-writer skill (see evals_run.py DIRECTIVE) and scores
+# whether the pipeline's terminal state matches `expect_outcome`.
+#
+# Per case:
+#   question        the request handed to the pipeline
+#   expect_outcome  one of: found-existing | enriched | created | removed |
+#                   nothing-written | needs-info
+#                   ('degraded' is retired — thin evidence now yields a small
+#                    created book, extended later, never a hedged stub.)
+#   note            why this topic exercises that route (→ matches the graph in
+#                   plans/Evals for Writer agnet:)
+
+cases:
+  - id: bw01-exists
+    question: "What is context rot and why does long context degrade?"
+    expect_outcome: found-existing
+    note: "Writer forced on (eval directive); its DIAGNOSE invokes lynk-research, which returns best-context's coverage → EXISTS → fix findability only, write nothing, then re-run lynk-research to verify the fix. (The realistic 'lynk-research answered, writer never ran' path is the upstream offer-gate — a separate suite, not this one.)"
+
+  - id: bw02-dogs-inferable
+    question: "I want to write a book about dogs."
+    expect_outcome: nothing-written
+    note: "The inferable trap — general dog knowledge fails the non-inferable filter → refuse (or minimal stub)."
+
+  - id: bw03-create-mcp
+    question: "Write a book about MCP (Model Context Protocol) — what it is, why it exists, and how to build a server."
+    expect_outcome: created
+    note: "Outside best-context scope, real spec/docs to cite → ABSENT → new book, promoted."
+
+  - id: bw04-thin-benchmarks
+    question: "Write a chapter with measured production failure-rate benchmarks for multi-agent LLM systems."
+    expect_outcome: created
+    note: "Little solid public data → ship a SMALL book (1–2 chapters) with only the few reliably-sourced numbers, extend later. No padding, and no 'uncertain'/hedged content — omit what can't be reliably sourced."
+
+  - id: bw05-needs-info
+    question: "Can you write something for the library?"
+    expect_outcome: needs-info
+    note: "Stage 0 — brief missing ask/gap → ask the user, spend nothing."
+
+  - id: bw06-searchmiss-created
+    question: "I searched the library for 'OAuth 2.1 device authorization grant flow' and found nothing. Please fill that gap."
+    expect_outcome: created
+    note: "E1a search-miss entry, end-to-end → DIAGNOSE ABSENT → create."
+
+  - id: bw07-absent-new-chapter
+    question: "Add coverage of 'tool-result context poisoning' — how bad tool outputs corrupt an agent's context. Searched best-context, not there."
+    expect_outcome: created
+    note: "ABSENT but fits best-context's scope → new CHAPTER in an existing book (not a new book)."
+
+  # --- EDIT FLOW (entry E3) — need a writer-authored book seeded in the sandbox,
+  #     same tools+sandbox unlock as the create cases above.
+  - id: bw08-enrich
+    question: "Add the recorded attendance figure for the 2026 World Cup final to the world-cup-2026 'the-final-and-podium' chapter, with a source."
+    expect_outcome: enriched
+    note: "PARTIAL → enrich an existing chapter with a new sourced fact. Core terminal state that had no case."
+
+  - id: bw09-clean-correction
+    question: "Correct a claim in the world-cup-2026 book: an award count that has since been revised. Update it to the new value."
+    expect_outcome: enriched
+    behavior: "CLEAN OVERWRITE — the corrected value replaces the old one directly; NO supersede note, no stale text left behind (change history lives in git/PRs). Needs a behavior evaluator: new value present, old value gone, and NO 'superseded' marker in the file."
+
+  - id: bw10-wrong-target
+    question: "Add a note about host-city stadium capacities to the world-cup-2026 'awards-and-records' chapter."
+    expect_outcome: enriched
+    behavior: "one-concept-one-home — capacities belong in host-preparations, NOT awards; the writer must redirect to the right chapter (or link), not duplicate. Needs a behavior evaluator that checks WHERE the content landed."
+
+  # --- DISCRIMINATION (the hardest "when to write & what" calls) --------------
+  - id: bw11-searchmiss-exists
+    question: "I searched the library for 'why model accuracy drops as the context window fills up' and found nothing — please write a book about it."
+    expect_outcome: found-existing
+    note: "ANTI-DUPLICATION twin of bw06. DIAGNOSE (via lynk-research) must recognize best-context already covers this (context-rot) → fix findability, then re-run lynk-research to verify. Fix works → found-existing. If it STILL can't be found, the writer SUGGESTS a retrieval fix rather than fabricating (that's the retrieval-fix-suggested leaf). Because lynk-research already missed on this entry, the duplicate backstop here is the findability fix + PR review."
+
+  - id: bw12-inferable-kernel
+    question: "Write a book on basic house-cat care, and include the specific vaccination-interval change vets adopted after the 2026 AAFP feline guideline update."
+    expect_outcome: created
+    note: "Drop the inferable bulk (general cat care), keep ONLY the non-inferable nugget (the 2026 guideline change) as a SMALL 1–2 chapter book — extend later. That's a create (small), not a flat refusal and not a padded encyclopedia."
+
+  - id: bw13-overlap-book-as-chapter
+    question: "Create a new book called 'context-window-degradation' about how and why long contexts lose accuracy."
+    expect_outcome: created
+    behavior: "SCOPE-FIT ON CREATE: this overlaps best-context. The writer must land it as a CHAPTER in best-context (or return found-existing if fully covered) — it must NOT spawn a new book overlapping an existing one. Needs a behavior evaluator that checks no rival book was created."
+
+  # --- ROBUSTNESS / HONESTY ---------------------------------------------------
+  - id: bw14-no-sources
+    question: "Write a book about the 2031 Interplanetary Football Cup on Mars — the teams, results, and top scorers."
+    expect_outcome: nothing-written
+    note: "ANTI-FABRICATION: zero real sources exist (fictional-future event). Distinct from bw02 (inferable) — here the writer must refuse and must NOT hallucinate teams/results."
+
+  - id: bw15-resolve-conflict
+    question: "Add the total number of goals scored across the 2026 World Cup to the world-cup-2026 'awards-and-records' chapter."
+    expect_outcome: enriched
+    behavior: "NO-CONFLICT RULE (books carry single resolved facts): sources differ (~308 from FIFA-citing outlets vs a mid-tournament ~175 running count). The writer must RESOLVE to the single most-reliable value (308) and state it cleanly — NO 'sources disagree', no 'uncertain', no both-numbers; if it truly couldn't be resolved, omit it. Behavior evaluator: exactly one figure present, zero hedge words."
+
+  # --- LIFECYCLE (need a pre-seeded book in the sandbox) ----------------------
+  - id: bw16-idempotent-rerun
+    question: "Write a book about MCP (Model Context Protocol) — what it is, why it exists, and how to build a server."
+    expect_outcome: found-existing
+    note: "IDEMPOTENCY. SETUP: the case's worktree MUST be pre-seeded with the mcp book first — a fresh worktree off main won't have it, so seed from a fixture or bw03's promoted output before running. Then DIAGNOSE (lynk-research) finds MCP already exists → found-existing, never a duplicate."
+
+  - id: bw17-delete-chapter
+    question: "The 'upsets-and-storylines' chapter in the world-cup-2026 book is outdated and partly inaccurate — delete it."
+    expect_outcome: removed
+    behavior: "OBSOLETE removal (Stage 1 case 4). The chapter file is deleted AND the index no longer references it (no dangling entry/links, no tombstone — git holds history); the RETURN TELLS THE USER what was deleted and why (outdated / false / superseded) — the reason is surfaced, not recorded in the files. Behavior evaluator: file gone + index consistent + reason surfaced in the return. (Seed-dependent: needs the world-cup-2026 book in the worktree.)"
+
+  - id: bw18-target-resolution
+    question: "Update our library with the corrected MetLife Stadium capacity for the 2026 World Cup final."
+    expect_outcome: enriched
+    behavior: "TARGET RESOLUTION on an edit whose brief names no book/chapter: the writer must locate the right home via DIAGNOSE/lynk-research (world-cup-2026 · the-final-and-podium or host-preparations) and edit THERE — not misfile it or create a stray book. Behavior evaluator: the edit landed in the correct existing chapter. (Seed-dependent: needs the world-cup-2026 book in the worktree.)"
+
+# --- NOT YET RUNNABLE (documented; need harness work) ------------------------
+# Force a specific verifier verdict deterministically → needs a STUB verifier agent
+# swapped into a sandbox (a real LLM verifier can't be made to fail on cue):
+#   - correction-cap:    3 CORRECTION_NEEDED cycles → DEGRADE (cap behaviour, not one flag)
+#   - insufficient-info: VERIFY returns INSUFFICIENT_INFO → routes back to RESEARCH
+# Needs BOTH the writer .claude/ and the lynk-build plugin loaded at once + the
+# (still-unproven) fork → lynk-research → hook joint:
+#   - retrieval-fix-suggested: EXISTS but the findability edit doesn't make
+#     lynk-research re-find it → writer suggests a retrieval fix, never fabricates a book
+# Needs a "verify-only" harness entry (feed a planted draft straight to VERIFY,
+# skipping diagnose/research/author) — uses the REAL verifier, no stub needed:
+#   - negative-gate (e4): a draft with an UNSOURCED claim must come back
+#     CORRECTION_NEEDED, never APPROVED (exercises verifier check #1 / the gate itself).
+#
+# NOTE: several cases here (bw09, bw10, bw13, bw15, bw17, bw18) score their
+# terminal state today, but fully testing their BEHAVIOUR needs dedicated
+# behavior evaluators (not yet written): clean overwrite with no supersede marker
+# (bw09); content in the right chapter (bw10, bw18); no rival book spawned (bw13);
+# conflict resolved to one value, zero hedge words (bw15); delete leaves a
+# consistent index + reason stated (bw17).
+#
+# NOT IN THIS SUITE — belongs in its own suite next to lynk-research:
+#   - offer-gate: the root CLAUDE.md policy decision UPSTREAM of the writer. After
+#     a lynk-research result, does the system OFFER correctly — nothing → offer a
+#     new book; partial → offer an edit; fully answered → NO offer, no write? This
+#     suite forces book-writer ON, so it can never test the offer decision. It's a
+#     lynk-research / main-agent policy eval, not a book-writer one.

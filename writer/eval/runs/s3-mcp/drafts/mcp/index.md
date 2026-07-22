@@ -1,0 +1,6 @@
+---
+name: mcp
+description: The Model Context Protocol — its architecture, lifecycle, transports, primitives, security failure modes, and a recipe for building a server. Read when integrating an AI application with external tools or data via MCP, building or debugging an MCP server or client, choosing a transport or SDK, wiring servers into Claude Desktop or Claude Code, or assessing the security of an MCP setup. Not for general context-engineering principles or prompt design.
+labels: [mcp, model-context-protocol, json-rpc, tools, resources, prompts, stdio, streamable-http, sse, fastmcp, mcpserver, sdk, claude-desktop, claude-code, inspector, tool-poisoning, oauth, sampling, elicitation, roots, agentic, anthropic]
+sources: [modelcontextprotocol.io specification (revision 2025-11-25) and official docs, blog.modelcontextprotocol.io, anthropic.com/news/model-context-protocol, code.claude.com/docs/en/mcp, "official SDK READMEs (python-sdk, typescript-sdk, fetched 2026-07)", Invariant Labs disclosure (April 2025), NVD/GHSA CVE entries with Oligo Security and JFrog disclosures, TechCrunch and Microsoft Windows blog adoption reporting, en.wikipedia.org MCP article (secondary adoption reporting), github.com/modelcontextprotocol/inspector, Linux Foundation press release]
+---

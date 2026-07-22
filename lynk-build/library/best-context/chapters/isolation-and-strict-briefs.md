@@ -1,7 +1,6 @@
 ---
 name: Isolation and strict briefs
 description: Heavy work runs in isolated windows; strict briefs keep blind workers from colliding; only condensed, cited results return. Read when farming heavy work out to subagents or deciding what an isolated worker should be handed.
-labels: [isolation, subagents, briefs, fan-out, workers, delegation]
 ---
 
 The ISOLATE lever done properly: a subagent gets a fresh context window, does heavy work there, and returns only a condensed answer — its mess never touches the parent. But isolation creates a new problem: isolated workers are blind, so what you hand them decides everything. **Isolation does the containment, compression decides what escapes it, and the brief keeps blind workers from colliding.**

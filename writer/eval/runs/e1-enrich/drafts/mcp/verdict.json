@@ -1,0 +1,19 @@
+{
+  "verdict": "APPROVED",
+  "files": {
+    "library/mcp/chapters/submit-a-sep.md": "b87ff3ed9cbf5249dcb3a03ceb788ef2ec04098154b783a50ae94d21f7323e28",
+    "library/mcp/chapters/versions-and-governance.md": "a74566d1bc36487db445de60a84958940c2da0988ebe9e4670ec7e1ce8d0d7e1"
+  },
+  "checklist": {
+    "claims_classified": "CHECK",
+    "non_inferable_only": "CHECK",
+    "one_concept_one_home": "CHECK",
+    "v2_structure": "CHECK",
+    "findability": "CHECK (index update required at promotion: governance-clause wording, read-when trigger for proposing a spec change, labels sep/specification-enhancement-proposal/sponsor)",
+    "supersede_not_delete": "CHECK (diff vs library original: one interlink sentence added, zero removals)",
+    "sources_honest": "CHECK (index sources list must add the six SEP-process sources at promotion)",
+    "scope_fit": "CHECK (fits existing governance clause; no new subject clause needed)"
+  },
+  "rounds": {"research": 1, "author_verify": 1},
+  "timestamp": "2026-07-21T00:00:00Z"
+}

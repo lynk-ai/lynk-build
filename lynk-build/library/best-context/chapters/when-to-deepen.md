@@ -1,7 +1,6 @@
 ---
 name: When to add a disclosure level
 description: When a home outgrows itself, split sideways into sibling pages unless a sub-part has become its own cluster of concepts that needs its own index — then deepen a level. Read when a page or book has outgrown itself and you must choose — split sideways into siblings or graduate it into its own indexed home.
-labels: [split, graduate, restructure, hierarchy, deepen, outgrown]
 ---
 
 This is the judgment you face when a home outgrows itself: split *sideways* (more pages at the same level) or *deepen* (add a new discovery layer — an `index.md` of its own, so a page becomes a book). Both are progressive disclosure; they differ in whether you add breadth or depth. Split sideways when the home is still one concept, just too long or buried under caveats: the short current page keeps the name and specifics move to sibling pointer pages (the page-budget discipline). Deepen a level when a sub-part has become several concepts a reader cites independently and needs its own discovery layer: the sub-part earns its own `index.md` and becomes a book, and the old home shrinks to a stub (the graduation discipline).

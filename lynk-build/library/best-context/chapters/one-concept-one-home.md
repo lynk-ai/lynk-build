@@ -1,7 +1,6 @@
 ---
 name: One concept, one home
 description: Every fact has exactly one home; everything else points at it — the structural rule that makes clash impossible. Read when the same definition exists (or is about to exist) in more than one place, or you must decide where a fact should live.
-labels: [duplication, single source of truth, copies, fork, canonical, pointers]
 ---
 
 This is the structural rule that *prevents* [clash](four-failure-modes.md) rather than detecting it: every concept, definition, or rule lives in exactly one place, and everything else points there. Duplication isn't a style problem — it's two sources of truth waiting to disagree.

@@ -1,0 +1,28 @@
+{
+  "verdict": "APPROVED",
+  "verify_round": 2,
+  "files": {
+    "library/mcp/index.md": "61bd1634e653889a262b47af0af0090ae0f334666560b9cf88e986e99d3edbbb",
+    "library/mcp/chapters/build-a-server.md": "b6c02229d464e10c4d8f044c353ab14d47982aa57fcc3aff909ac00baacfe9c0",
+    "library/mcp/chapters/lifecycle-and-transports.md": "4a65e238697c7108ca269f4f3cf8524649e7ea3af87f952ba9c2bc34700c99a8",
+    "library/mcp/chapters/security-pitfalls.md": "e8013614aa29ab4c77975a47c90f014bcbeaa25bdda5985115e54d9d9c90219c",
+    "library/mcp/chapters/test-and-connect.md": "d0577bcbbe559a828f8c1bc8c70fc6f4275424d2924bf392b314847bdf664823",
+    "library/mcp/chapters/versions-and-governance.md": "4660872314b284a767684cf4391fecb5955da4ac04e9e32436ad194f4a6fefb1",
+    "library/mcp/chapters/what-mcp-is.md": "955b482e90ebe7c2dd1009263d4f2ac3f08c7d3b225b1c7f05fac5f669e86ba0",
+    "library/mcp/chapters/why-mcp-exists.md": "83f0f83c9f6c661f4dc768559341743f1368e2f3cead5ad1bb47d17210095c4a"
+  },
+  "checklist": {
+    "claims_classified": "CHECK",
+    "non_inferable_only": "CHECK",
+    "one_concept_one_home": "CHECK",
+    "v2_structure": "CHECK",
+    "findability": "CHECK",
+    "supersede_not_delete": "CHECK (N/A — new book)",
+    "sources_honest": "CHECK"
+  },
+  "rounds": [
+    {"round": 1, "verdict": "CORRECTION_NEEDED", "flags": 4},
+    {"round": 2, "verdict": "APPROVED", "flags": 0}
+  ],
+  "timestamp": "2026-07-21T00:55:00+03:00"
+}

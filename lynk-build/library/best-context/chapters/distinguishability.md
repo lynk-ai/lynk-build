@@ -1,7 +1,6 @@
 ---
 name: Distinguishability
 description: When a reader must choose between two similar items, the difference must show in BOTH the name and the one-line description — the complement of one-concept-one-home. Read when two similar items must coexist and a reader or model could pick the wrong one — naming metrics, pages, or tools apart.
-labels: [ambiguity, naming, duplicate names, descriptions, collision, disambiguation]
 ---
 
 This rule governs two legitimately-different things sitting side by side. A reader — human or agent — choosing between them must be able to tell them apart from their name and their description alone, because that is all a chooser reads before committing. Two items that share a name, or carry identical or near-identical descriptions, force a guess: the choice becomes a coin-flip, and everything built on the wrong pick is silently wrong. It's the complement of [one-concept-one-home](one-concept-one-home.md): one-home says *define each thing once*; distinguishability says *when two distinct things coexist, make the difference visible in both the name and the one-line description*. (Framing ours — one-home kills the duplicate; distinguishability separates the genuine pair.)

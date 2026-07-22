@@ -1,0 +1,22 @@
+{
+  "verdict": "APPROVED",
+  "files": {
+    "library/multi-agent-reliability/index.md": "9ecf6c7a9cc6fc2051245f4236fba9bdd80f90688a0ef3139c2357c5f6873f1e",
+    "library/multi-agent-reliability/chapters/measured-failure-rates.md": "939eb10af1bd0624db68895256f3d08b1708f7f7ca8f992ed0e2d8af4f1acd22"
+  },
+  "checklist": {
+    "claims-classified": "CHECK",
+    "non-inferable-only": "CHECK",
+    "one-concept-one-home": "CHECK",
+    "v2-structure": "CHECK",
+    "findability": "CHECK",
+    "supersede-not-delete": "N/A (new book)",
+    "sources-honest": "CHECK",
+    "scope-fit": "CHECK (new book; best-context scope untouched, per scope-fit rule's own worked example)"
+  },
+  "rounds": {
+    "research": 1,
+    "author_verify": "3 correction cycles (verify rounds: CORRECTION_NEEDED x3, then APPROVED on final round)"
+  },
+  "timestamp": "2026-07-21T07:15:00Z"
+}

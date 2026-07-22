@@ -1,7 +1,6 @@
 ---
 name: Types of context
 description: Context comes in six types — behavior, domain knowledge, procedures, memory, working context, actions — each with its own home, lifetime, and dominant failure mode; never merged. Read when deciding where a piece of context should live — system prompt, book, skill, memory, or tool definition — or why one artifact keeps failing in one specific way.
-labels: [context types, taxonomy, system prompt, knowledge, procedures, memory, tools, placement, where does this live]
 ---
 
 "Context" is not one substance. What an agent sees divides into six types, and each wants a different home, has a different lifetime, and breaks in a different way. The general laws of this book — rot, the failure modes, the levers — apply to all six, but treatment is per-type, and the most common building decision, *where does this sentence live?*, is really a typing decision.

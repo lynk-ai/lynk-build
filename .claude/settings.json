@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "lynk-build": {
+      "source": {
+        "source": "directory",
+        "path": "."
+      }
+    }
+  },
+  "enabledPlugins": {
+    "lynk-build@lynk-build": true
+  }
+}

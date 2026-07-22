@@ -1,7 +1,6 @@
 ---
 name: Pointers, not content
 description: The discovery layer carries pointers — IDs, counts, one-liners an agent can follow later — never bodies, and must stay under budget or its tail gets truncated and is never read. Read when an index, session note, or discovery layer is growing — deciding what may live in it and how big it may get.
-labels: [index budget, truncation, sticky note, discovery layer, pointers, session note]
 ---
 
 This is the rule for what belongs in the discovery layer. Discovery exists to let an agent decide what to open next, so it carries pointers — names, one-line descriptions, IDs, counts — not the bodies those pointers lead to. Put a body in the discovery layer and you have paid full price at the always-paid stage, defeating the economics of [progressive-disclosure](progressive-disclosure.md). So page and book names, one-line descriptions, and IDs and counts an agent can follow later belong at discovery (always paid, keep tiny); page bodies, tables, examples, reasoning, and anything a pointer already stands in for wait for activation (paid on match).
