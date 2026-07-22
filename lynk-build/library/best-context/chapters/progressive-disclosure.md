@@ -1,7 +1,6 @@
 ---
 name: Progressive disclosure
 description: Load context lazily — a small index of everything always present, full bodies only on demand — so cost scales with what a task uses, not what exists. Read when deciding how much context to load up front vs on demand, or why a growing library shouldn't make every session more expensive.
-labels: [lazy loading, discovery, activation, execution, L1 L2 L3, index, economics, habit vs contract, read vs execute]
 ---
 
 > History: this concept was once split out into its own home, then folded back — its home is this chapter again, with the fuller treatment split across [pointers-not-content](pointers-not-content.md), [when-to-deepen](when-to-deepen.md), and [convergent-evolution](convergent-evolution.md).

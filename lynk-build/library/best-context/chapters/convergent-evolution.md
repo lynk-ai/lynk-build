@@ -1,7 +1,6 @@
 ---
 name: Convergent evolution on the file shape
 description: Independent systems converged on the same shape — small markdown files plus YAML frontmatter plus progressive disclosure — evidence the pattern is load-bearing, not fashion. Read when questioning the substrate — why plain markdown files and frontmatter instead of a database, or whether the file shape is arbitrary.
-labels: [OKF, SKILL.md, CLAUDE.md, AGENTS.md, markdown, frontmatter, MemFS, file shape, convergence]
 ---
 
 Several teams, solving different problems, independently landed on the same container for agent-read knowledge: small markdown files plus YAML frontmatter plus progressive disclosure. Convergence under independent selection is evidence a pattern is load-bearing rather than fashionable (derived: unrelated designs reaching one answer points at a real constraint). The convergence, from public sources:

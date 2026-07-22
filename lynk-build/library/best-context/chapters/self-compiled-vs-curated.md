@@ -1,7 +1,6 @@
 ---
 name: Self-compiled vs. externally curated
 description: Agent-written and human-written knowledge are the same artifact before and after review — the agent proposes, the merge makes it truth. Read when deciding whether agent-written knowledge can be trusted, shared, or promoted to ground truth — and who must approve the promotion.
-labels: [memory, agent-written, review, promotion, trust, curation, human in the loop]
 ---
 
 There are two ways knowledge gets made. Self-compiled: an agent writes it from what it observed or derived. Externally curated: a human authored and reviewed it. The insight is that these aren't rival systems — they're the same artifact at two stages, a self-compiled draft becoming curated truth by passing review. It's the same shape as a pull request: proposed by the agent, merged by a human. As a draft, the content is a working opinion — private, per [one-concept-one-home](one-concept-one-home.md), moved forward only by submission to review; once reviewed, the same content is shared truth that readers may rely on blindly, and the merge is what moved it there.

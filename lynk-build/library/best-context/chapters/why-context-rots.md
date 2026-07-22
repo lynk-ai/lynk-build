@@ -1,7 +1,6 @@
 ---
 name: Why context rots
 description: The measured thresholds and attention-level mechanisms behind context rot — it degrades before the window is full because of how attention works, not just "too much text". Read when you need hard numbers or the mechanism for why long context degrades — to justify a budget, cite a threshold, or explain the cause beyond "too much text".
-labels: [NoLiMa, lost in the middle, Ms-PoE, attention, RoPE, causal attention, benchmarks, distractor, give-up, thresholds, Chroma]
 ---
 
 This is the evidence and mechanism under [context-rot](context-rot.md). The principle chapter states *that* quality drops; this one collects *how far before the window fills* (measured thresholds) and *why* (attention-level causes), so a reader can cite a number and name a cause rather than assert "too much text".

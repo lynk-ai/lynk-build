@@ -1,7 +1,6 @@
 ---
 name: Context rot
 description: Answer quality drops as context grows — even relevant context — and it starts dropping before the window is full. Read when answers degrade as a session or prompt grows, or someone proposes "just add more context."
-labels: [context rot, long context, degradation, lost in the middle, context length, attention dilution]
 ---
 
 This is the core problem every other chapter in this book exists to fight: answer quality drops as more context is added — *even context that looks relevant* — and the drop starts well before the window is full. The name and the measurement are sourced: Chroma Research's *Context Rot: How Increasing Input Tokens Impacts LLM Performance* (2025) tested 18 models and found performance grows increasingly unreliable and non-uniform as input length rises, even on trivially simple retrieval tasks. It builds with every extra token added to context, relevant or not; it has no single trigger — it's continuous, as noise-to-signal rises; and the result is that attention dilutes across more tokens and the answer measurably gets worse.

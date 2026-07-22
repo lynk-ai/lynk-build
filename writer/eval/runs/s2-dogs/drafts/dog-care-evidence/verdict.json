@@ -1,0 +1,28 @@
+{
+  "verdict": "APPROVED",
+  "timestamp": "2026-07-21T07:04:03Z",
+  "book": "dog-care-evidence",
+  "verify_rounds": 2,
+  "research_rounds": 2,
+  "files": {
+    "index.md": "595d6cb391ec2f55dc209220a1de460885e33a44c05aac384e16b874498c7f93",
+    "chapters/anesthesia-free-dental.md": "c02c0c41f9ddd21b643fe99094d49ef34d023ddca272db8537e0baa4a3cb0182",
+    "chapters/brachycephaly-boas.md": "890615b0cc3cb0e1098723a5543717b004055546e5af654fe447462fcc241a6b",
+    "chapters/grain-free-and-dcm.md": "cd0d9e751058bfa87cdcc1bf9b9170343178a94d4406cd25b4164fe63889f063",
+    "chapters/lean-feeding-lifespan.md": "2371d447a0d40f67f3ad1c92424dad56f28f8e5045869289af7e613db9c44de2",
+    "chapters/neuter-timing.md": "2e475f5207dbe9e508b3e771d9a49f73ed0ea9e5d71721ab09f849a6364d2d40",
+    "chapters/raw-feeding-pathogens.md": "fc9959fcb00df5c5a1ea927b8b338886d41ae3219c5df59ff7f5827991ce9807",
+    "chapters/training-methods.md": "4a4b5415552ad72cb89029403a487b30ed97b2f335988e6e3fff2c24adacc149",
+    "chapters/vaccination-intervals.md": "9981e612978305a123974a8e5c0b595fc5c756ba21ab901754f4bf31ef0e503c"
+  },
+  "checklist": {
+    "1_claims_classified": "CHECK",
+    "2_non_inferable_only": "CHECK",
+    "3_one_concept_one_home": "CHECK",
+    "4_v2_structure": "CHECK",
+    "5_findability": "CHECK",
+    "6_supersede_not_delete": "N/A (new book)",
+    "7_sources_honest": "CHECK",
+    "8_scope_fit": "CHECK"
+  }
+}

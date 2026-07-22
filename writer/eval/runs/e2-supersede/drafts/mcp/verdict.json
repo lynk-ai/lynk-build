@@ -1,0 +1,17 @@
+{
+  "verdict": "APPROVED",
+  "files": {
+    "library/mcp/chapters/versions-and-governance.md": "d0723d70ed7afcc56505fd5f35006d4db31b4549dcec7ad5cef0e75cdd835a21"
+  },
+  "checklist": {
+    "claims-classified": "CHECK",
+    "non-inferable-only": "CHECK",
+    "one-concept-one-home": "CHECK",
+    "v2-structure": "CHECK",
+    "findability": "CHECK",
+    "supersede-not-delete": "CHECK",
+    "sources-honest": "CHECK",
+    "scope-fit": "CHECK"
+  },
+  "timestamp": "2026-07-21T00:00:00Z"
+}

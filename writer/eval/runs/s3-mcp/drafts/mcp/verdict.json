@@ -1,0 +1,29 @@
+{
+  "verdict": "APPROVED",
+  "verify_rounds": [
+    {"round": 1, "verdict": "CORRECTION_NEEDED", "flags": 4},
+    {"round": 2, "verdict": "CORRECTION_NEEDED", "flags": 3},
+    {"round": 3, "verdict": "APPROVED", "flags": 0}
+  ],
+  "files": {
+    "library/mcp/index.md": "ce941611e427168722b48b6bbdcdf8b1db50b56356ce64db7a40ccff2d93dd00",
+    "library/mcp/chapters/what-mcp-is.md": "295f18a74a451a6a4e87e4fe8ec39b5780250de0d250a112b072bcafecafc5f2",
+    "library/mcp/chapters/why-mcp-exists.md": "341954260448df0e4753369c2b1311036af7760e74ac44dacd1976b33319bca5",
+    "library/mcp/chapters/protocol-lifecycle-and-versioning.md": "1c44008ce175516dd05483616bb3b282d17efa6e8e68baddf8bc97e4a00ad472",
+    "library/mcp/chapters/transports.md": "d2e74f2eec5cb15021d7e381a1ac572b1e768b91c98f7543bab717f7101e56bd",
+    "library/mcp/chapters/server-primitives.md": "083d06f4d0422c142dccebea58355a0936942d081bba97e529e527435ab68bba",
+    "library/mcp/chapters/build-a-server.md": "985c01f3ae2a6c8d95a2fbb898f490ee24373026c25de67afe68c8175dd5bb1a",
+    "library/mcp/chapters/security.md": "cb608ac6770ceb20cdaf4bcd1f0d963b0cb856a7dd87568fe904eb8df6188983"
+  },
+  "checklist": {
+    "claims_classified": "CHECK",
+    "non_inferable_only": "CHECK",
+    "one_concept_one_home": "CHECK",
+    "v2_structure": "CHECK",
+    "findability": "CHECK",
+    "supersede_not_delete": "N/A (create)",
+    "sources_honest": "CHECK",
+    "scope_fit": "CHECK"
+  },
+  "timestamp": "2026-07-21T10:11:00+03:00"
+}

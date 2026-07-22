@@ -1,7 +1,6 @@
 ---
 name: Hook vs. router
 description: Hooks fire themselves and skip silently; routers are explicit and fail closed — hooks raise the floor, the router guards the door. Read when choosing how to make something run automatically — a self-firing hook or an explicit fail-closed checkpoint — or a silent skip just bit you.
-labels: [hooks, gates, enforcement, fail-closed, automation, router, silent failure]
 ---
 
 There are two ways to make something run automatically, distinguished by one question: *who is responsible for it running?* A hook is an event listener — nobody invokes it; it watches, fires on a match, and if nothing matches, nothing happens and nothing tells you. A router is a dispatcher standing *in* the control flow — everything passes through it, it decides what happens next, and it can refuse.

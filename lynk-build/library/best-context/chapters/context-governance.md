@@ -1,7 +1,6 @@
 ---
 name: Context governance
 description: Keeping context clean is a job someone must own — ongoing watcher or static checkpoint, decided once. Read when nobody owns keeping context clean, or you're assigning that job — continuous watcher vs on-demand checkpoint.
-labels: [ownership, monitoring, checkpoint, governance, watcher, upkeep]
 ---
 
 The failure modes don't prevent themselves. Compressing and isolating are *operations* anyone can invoke when they notice a problem; governance is different — it gives something the actual *job* of catching problems before they happen, on purpose, not as a side effect of whoever happens to be working.

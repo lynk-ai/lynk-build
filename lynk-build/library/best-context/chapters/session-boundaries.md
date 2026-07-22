@@ -1,7 +1,6 @@
 ---
 name: Session boundaries
 description: Cross-session amnesia is a distinct failure from in-window rot — each session starts blank; the fix is persistent external state plus a two-phase harness, not compaction. Read when an agent works across multiple sessions or a task outlives one window — and each new session starts with no memory of the last.
-labels: [long-running agents, sessions, amnesia, harness, progress file, git history, resumption, one feature per session, re-anchoring]
 ---
 
 This is the failure that lives *between* windows, not inside one. [context-rot](context-rot.md) degrades an agent as one window fills; cross-session amnesia is different in kind: a task too long for one session spans several, and "each new session begins with no memory of what came before" (Anthropic, *Effective harnesses for long-running agents*, 2025). Compaction is explicitly not the answer — it shrinks one window; it does not carry state across the boundary between windows.

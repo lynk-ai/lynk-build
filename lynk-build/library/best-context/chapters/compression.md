@@ -1,7 +1,6 @@
 ---
 name: Compression
 description: Compression is lossy by design — what survives (conclusions, citations, thresholds) is a decision, not an accident; the good escape shape is a condensed, cited return. Read when a long session, tool result, or subagent return must shrink — deciding what survives the summary and when to trigger it.
-labels: [compress, compaction, summarization, condensed return, lossy, summary, tool-result clearing, pruning, KV-cache, clear_at_least]
 ---
 
 This is the COMPRESS lever of [four-operations](four-operations.md) as a principle: shrinking context is *lossy by design*, so the real decision is not "should we summarize" but *what is allowed to survive*. A compression that keeps the wrong things (narrative, dead ends) and drops the right ones (conclusions, citations, thresholds) is worse than none — it launders noise into something that looks authoritative.

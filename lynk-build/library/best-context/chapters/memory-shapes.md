@@ -1,7 +1,6 @@
 ---
 name: Memory shapes
 description: Four ways memory evolves — paging, restructure-on-write, score-and-reflect, verified methods — one idea to steal from each. Read when designing how stored knowledge or memory should evolve without rotting — choosing what a write is allowed to do.
-labels: [memory, MemGPT, Letta, A-MEM, Voyager, reflection, compaction, write gate, archive]
 ---
 
 Several real systems each answered "how does stored knowledge evolve without rotting?" differently. None is *the* answer; each contributes one idea worth stealing. (Even the systems' authors admit the problem — Letta on MemGPT: "incremental memory formation… may become messy and disorganized over time." Memory rot is real.)

@@ -1,7 +1,6 @@
 ---
 name: Living sources
 description: Sources split when too big and merge when duplicated — and nothing forces this refactor, so budget for it. Read when a source has grown into a wall of caveats, or two sources drift toward answering the same question — deciding whether to split or merge.
-labels: [refactor, split, merge, staleness, drift, source of truth]
 ---
 
 A source of truth doesn't stay put. It grows until it's too big or too blurred to stay accurate, and then it needs to be *split* into focused pieces; or two sources drift into saying almost the same thing, and they need to be *merged* before they disagree. You split on size or accuracy drift — one "customers" source quietly covering two different business meanings of customer — because otherwise every answer that reads it gets a little wrong, silently. You merge on duplication — two sources answering the same question slightly differently — because otherwise it's a clash waiting to happen, with readers getting whichever version they found first.

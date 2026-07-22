@@ -1,0 +1,34 @@
+{
+  "verdict": "APPROVED",
+  "book": "world-cup-2026",
+  "timestamp": "2026-07-21T14:30:00Z",
+  "pipeline": {
+    "research_rounds": 2,
+    "correction_cycles": 2,
+    "verifier_spawns": 3
+  },
+  "files": {
+    "library/world-cup-2026/index.md": "55a4c822ad73b05be60b82ac411163d30f7c7e54df4a630f55ee7a9d97cd1e37",
+    "library/world-cup-2026/chapters/awards-and-records.md": "c29e925c36fcb0b434bccd04744688363a0a85954409927453cbca62beb1c69a",
+    "library/world-cup-2026/chapters/format-and-overview.md": "0cc31251554757cd305498bbcedf928128ed79f3c8475eefe8a7a2dbc2d441e6",
+    "library/world-cup-2026/chapters/host-preparations.md": "be770ad8f5ccda3f64b8356781974b2f3a3051edbb45fbfb495a52e25a873e72",
+    "library/world-cup-2026/chapters/knockout-routes.md": "8673a1b7ddbf89677d16c8735d279092443c9eac6e06ea28bdb448c164c53a16",
+    "library/world-cup-2026/chapters/the-final-and-podium.md": "6e1c7f0d66a6d290b192d3638e1b5db16368d46345ad763a91735e89e6c5b37b",
+    "library/world-cup-2026/chapters/upsets-and-storylines.md": "8ec690172515ee686a7ea45598b880b41dc409ed7dfeb8596208c335b285697d"
+  },
+  "checklist": {
+    "claims_classified": "CHECK",
+    "non_inferable_only": "CHECK",
+    "one_concept_one_home": "CHECK",
+    "v2_structure": "CHECK",
+    "findability": "CHECK",
+    "supersede_not_delete": "CHECK (n/a, new book)",
+    "sources_honest": "CHECK",
+    "scope_fit": "CHECK",
+    "context_quality": "CHECK"
+  },
+  "open_nuances": [
+    "Tournament total-goals figure presented as an unresolved conflict (~308 final vs ~175-177 mid-tournament running count) — derived, not asserted as one clean number.",
+    "Messi's precise career World Cup goal count left uncertain (ESPN pieces gave 18/20/21); qualitative records kept sourced."
+  ]
+}

@@ -1,7 +1,6 @@
 ---
 name: The four failure modes
 description: Poisoning, distraction, confusion, clash — four distinct ways context breaks an agent; mixing them up means applying the wrong fix. Read when an agent's output feels off and you need to identify which context failure is causing it before picking a fix.
-labels: [poisoning, distraction, confusion, clash, hallucination loop, context failure, diagnosis]
 ---
 
 There are four distinct ways context breaks an agent, a taxonomy named by Drew Breunig (*How Long Contexts Fail*, 2025). They present as the same symptom ("this feels off"), but each has a different cause and a different fix — mixing them up means applying the wrong one.
